@@ -6,6 +6,7 @@ const homePage = {
   title: "Find your next stay",
   description:
     "Welcome to Hotel Booking. Browse hotels and plan your next stay.",
+  hero: true,
   links: [
     { label: "Browse hotels", href: "/hotels/" },
     { label: "Log in", href: "/login/" },
@@ -18,7 +19,13 @@ const layoutFactories = new Map([
   ["admin", createAdminLayout],
 ]);
 
-export function renderPage({ title, description, links = [], layout = "main" }) {
+export function renderPage({
+  title,
+  description,
+  links = [],
+  layout = "main",
+  hero = false,
+}) {
   const app = document.querySelector("#app");
   if (!app) {
     throw new Error('Page is missing the required "#app" element.');
@@ -30,7 +37,7 @@ export function renderPage({ title, description, links = [], layout = "main" }) 
   }
 
   document.title = `${title} | Hotel Booking`;
-  app.replaceChildren(createLayout({ title, description, links }));
+  app.replaceChildren(createLayout({ title, description, links, hero }));
 }
 
 export function renderHomePage() {

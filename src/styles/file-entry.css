@@ -41,12 +41,7 @@ body {
   width: 100%;
   min-height: 5.5rem;
   padding: 0.85rem max(1.5rem, calc((100% - 76rem) / 2));
-  background-color: #07545b;
-  background-image:
-    linear-gradient(105deg, rgb(5 47 60 / 88%), rgb(9 113 115 / 66%) 56%, rgb(226 130 72 / 55%)),
-    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2200&q=85");
-  background-position: center 46%;
-  background-size: cover;
+  background-color: #0d6efd;
   box-shadow: 0 0.5rem 1.5rem rgb(15 44 51 / 15%);
 }
 
@@ -116,11 +111,56 @@ body {
   background: #ffe2aa;
 }
 
+.file-button--outline {
+  border-color: rgb(255 255 255 / 78%);
+  background: transparent;
+  color: #fff !important;
+}
+
+.file-button--outline:hover,
+.file-button--outline:focus-visible {
+  border-color: #fff;
+  background: rgb(255 255 255 / 14%);
+  color: #fff !important;
+}
+
 .file-main {
   width: min(100% - 3rem, 76rem);
   flex: 1;
   margin-inline: auto;
   padding-block: clamp(5rem, 15vh, 10rem);
+}
+
+.file-main--hero {
+  display: flex;
+  width: 100%;
+  min-height: clamp(34rem, 72vh, 52rem);
+  align-items: center;
+  padding: clamp(5rem, 12vh, 9rem) max(1.5rem, calc((100% - 76rem) / 2));
+  background-color: #173d48;
+  background-image:
+    linear-gradient(90deg, rgb(8 31 43 / 78%), rgb(8 31 43 / 38%) 62%, rgb(8 31 43 / 18%)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2400&q=85");
+  background-position: center;
+  background-size: cover;
+}
+
+.file-main--hero > div {
+  width: min(100%, 76rem);
+  margin-inline: auto;
+}
+
+.file-main--hero h1 {
+  color: #fff;
+  text-wrap: balance;
+}
+
+.file-main--hero .file-eyebrow {
+  color: #ffd17d;
+}
+
+.file-main--hero .file-description {
+  color: rgb(255 255 255 / 88%);
 }
 
 .file-main h1 {
@@ -165,12 +205,7 @@ body {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.5rem;
-  background-color: #102f3a;
-  background-image:
-    linear-gradient(110deg, rgb(7 34 47 / 96%), rgb(10 68 75 / 91%) 58%, rgb(119 67 52 / 75%)),
-    url("https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=2200&q=80");
-  background-position: center 57%;
-  background-size: cover;
+  background-color: #111;
   color: #fff;
 }
 

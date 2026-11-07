@@ -226,8 +226,9 @@
   function createMain() {
     const main = document.createElement("main");
     main.id = "main-content";
-    main.className = "file-main";
+    main.className = entry === "home" ? "file-main file-main--hero" : "file-main";
 
+    const content = document.createElement("div");
     const eyebrow = document.createElement("p");
     eyebrow.className = "file-eyebrow";
     eyebrow.textContent =
@@ -239,18 +240,27 @@
     const description = document.createElement("p");
     description.className = "file-description";
     description.textContent = page.description;
-    main.append(eyebrow, heading, description);
+    content.append(eyebrow, heading, description);
 
-    const linkList = document.createElement("ul");
-    linkList.className = "file-actions";
-    for (const item of page.links) {
-      const listItem = document.createElement("li");
-      listItem.append(
-        createLink(item.label, item.route, "file-button"),
-      );
-      linkList.append(listItem);
+    if (page.links.length > 0) {
+      const linkList = document.createElement("ul");
+      linkList.className = "file-actions";
+      page.links.forEach((item, index) => {
+        const listItem = document.createElement("li");
+        listItem.append(
+          createLink(
+            item.label,
+            item.route,
+            entry === "home" && index > 0
+              ? "file-button file-button--outline"
+              : "file-button",
+          ),
+        );
+        linkList.append(listItem);
+      });
+      content.append(linkList);
     }
-    main.append(linkList);
+    main.append(content);
     return main;
   }
 
