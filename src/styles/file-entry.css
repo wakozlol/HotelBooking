@@ -150,7 +150,7 @@ body {
   margin-inline: auto;
 }
 
-.file-main--hero h1 {
+.file-main.file-main--hero h1 {
   color: #fff;
   text-wrap: balance;
 }
