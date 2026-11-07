@@ -2,7 +2,8 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
-const root = fileURLToPath(new URL(".", import.meta.url));
+const projectRoot = fileURLToPath(new URL(".", import.meta.url));
+const root = resolve(projectRoot, "pages");
 
 const pages = [
   "index.html",
@@ -23,6 +24,7 @@ const pages = [
 ];
 
 export default defineConfig({
+  root,
   build: {
     rollupOptions: {
       input: Object.fromEntries(
