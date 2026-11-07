@@ -27,10 +27,11 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 ### 1. Application foundation
 
 - Establish or verify the Node.js/npm project and Vite configuration using JavaScript ES modules.
-- Establish or verify separate HTML entry files for the public, guest, and admin routes, with page modules under `src/pages/`.
+- Keep the home `index.html` in the project root and establish separate HTML entry files for the other public, guest, and admin routes, with page modules under `src/pages/`.
 - Add only the shared structure and assets needed to build and load the multi-page application; do not implement later milestone behavior.
 - Document required local configuration with placeholders only.
-- **Acceptance:** dependencies install reproducibly, the production build emits every configured page, and each page loads its shared assets.
+- **Acceptance:** dependencies install reproducibly, the production build emits the root home page and every configured route, and each page loads its shared assets through the appropriate shared layout.
+- **Status:** Complete. Vite builds the root home page and 14 multi-page routes. Development routes, shared public/auth/admin layouts, and generated assets were smoke-tested.
 
 ### 2. Supabase data model, policies, and migrations
 

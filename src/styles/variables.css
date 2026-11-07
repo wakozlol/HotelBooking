@@ -1,0 +1,8 @@
+:root {
+  --bs-primary: #164e63;
+  --bs-primary-rgb: 22, 78, 99;
+  --bs-primary-text-emphasis: #0c3544;
+  --bs-link-color: #164e63;
+  --bs-link-hover-color: #0c3544;
+  --site-content-max: 75rem;
+}

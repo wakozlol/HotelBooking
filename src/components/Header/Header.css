@@ -1,0 +1,12 @@
+.site-header {
+  z-index: 1020;
+}
+
+.site-header .navbar-brand {
+  color: var(--bs-primary-text-emphasis);
+  letter-spacing: -0.025em;
+}
+
+.site-header .nav-link {
+  white-space: nowrap;
+}

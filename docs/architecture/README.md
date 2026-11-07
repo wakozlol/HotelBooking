@@ -2,9 +2,9 @@
 
 ## Context
 
-The committed application uses HTML entry files under `pages/`, page-level vanilla JavaScript ES modules under `src/pages/`, and Vite to build multiple entries. Bootstrap supplies the UI toolkit, and Supabase is the planned hosted backend. Keep this a multi-page application: do not introduce a client-side SPA router or a frontend framework.
+The application uses a root `index.html` for the home entry and independent HTML entries under `pages/` for the other routes. Page-level vanilla JavaScript ES modules live under `src/pages/`, and Vite builds these as multiple entries. Bootstrap supplies the UI toolkit, and Supabase is the planned hosted backend. Keep this a multi-page application: do not introduce a client-side SPA router or a frontend framework.
 
-The workspace currently has pre-existing deletions of the application and package files. This document describes the intended architecture based on the committed project; it does not restore or replace those files.
+The previously deleted route HTML, page modules, shared shell, and Vite configuration have been restored from the committed baseline with owner approval. Other unrelated pre-existing deletions remain untouched.
 
 ## Folder tree
 
@@ -14,8 +14,10 @@ The workspace currently has pre-existing deletions of the application and packag
 │   ├── architecture/
 │   │   └── README.md
 │   └── implementation-plan.md
+├── index.html                          # Root home document and app entry
+├── public/
+│   └── favicon.svg
 ├── pages/                              # Separate Vite HTML entry files
-│   ├── index.html
 │   ├── hotels/index.html
 │   ├── hotel/index.html
 │   ├── booking/index.html
@@ -28,9 +30,14 @@ The workspace currently has pre-existing deletions of the application and packag
 │   └── admin/...
 ├── src/
 │   ├── app/
+│   │   ├── App.js
 │   │   ├── routes/
 │   │   ├── providers/
 │   │   └── layouts/
+│   │       ├── MainLayout.js / .css
+│   │       ├── AuthLayout.js / .css
+│   │       ├── AdminLayout.js / .css
+│   │       └── PageContent.js
 │   ├── pages/                          # Thin page entry modules
 │   ├── features/
 │   │   ├── auth/
@@ -41,6 +48,12 @@ The workspace currently has pre-existing deletions of the application and packag
 │   │   ├── users/
 │   │   └── admin/
 │   ├── components/
+│   │   ├── Header/
+│   │   │   ├── Header.js
+│   │   │   └── Header.css
+│   │   ├── Footer/
+│   │   │   ├── Footer.js
+│   │   │   └── Footer.css
 │   │   ├── ui/
 │   │   ├── common/
 │   │   └── forms/
@@ -51,7 +64,7 @@ The workspace currently has pre-existing deletions of the application and packag
 │   ├── types/                          # JSDoc contracts; no TypeScript
 │   ├── constants/
 │   ├── assets/
-│   ├── styles/                         # Shared CSS and Bootstrap overrides
+│   ├── styles/                         # Global CSS, tokens, and Bootstrap overrides
 │   └── config/
 ├── supabase/
 │   └── migrations/
@@ -65,17 +78,17 @@ The workspace currently has pre-existing deletions of the application and packag
 └── vite.config.js
 ```
 
-The `pages/` HTML files remain the URLs and independent document entries. `src/pages/` is retained from the existing convention and provides each document's JavaScript composition module. The route map documents/builds those entries; it does not intercept navigation.
+The root `index.html` loads `src/main.js`, which initializes global styles and calls `src/app/App.js`. `App.js` renders the home page and selects a shared layout for page modules. Other HTML documents remain separate Vite entries under `pages/`; a small Vite mapping preserves their root-level public URLs without client-side routing. `src/pages/` provides each document's JavaScript composition module.
 
 ## Responsibilities
 
-- **`pages/`:** HTML shells for public, guest, and admin documents. Each entry loads its matching page module and shared styles.
+- **`index.html` and `pages/`:** The root document is the home page; separate files in `pages/` are the other public, guest, and admin documents. Each loads its page module and shared styles.
 - **`src/pages/`:** Thin page composition modules. They select features and layouts, and should not own database policy or booking integrity.
-- **`src/app/routes/`:** Route/entry metadata shared with Vite configuration where practical. In an MPA this is a build-time/document map, not a runtime SPA router.
+- **`src/app/routes/`:** Route/entry documentation and metadata where useful. In an MPA this is a build-time/document map, not a runtime SPA router.
 - **`src/app/providers/`:** Small application startup and dependency initialization modules. No React context/provider convention is implied.
-- **`src/app/layouts/`:** Public, authenticated guest, and admin page shells.
+- **`src/app/layouts/`:** Public, auth, and admin page shells. `MainLayout` composes the reusable header and footer; auth/admin shells use their own navigation framing.
 - **`src/features/`:** Business capabilities and their feature-specific UI, validation, and operations. Keep related behavior cohesive within a feature.
-- **`src/components/`:** Reusable presentation. `ui/` contains generic controls, `common/` contains shared site pieces, and `forms/` contains reusable accessible form elements.
+- **`src/components/`:** Reusable presentation. `Header/` and `Footer/` are shared site components; `ui/` contains generic controls, `common/` contains shared site pieces, and `forms/` contains reusable accessible form elements.
 - **`src/services/`:** Shared external integrations, such as a browser Supabase client configured from public environment variables. Feature-specific query behavior should stay with its feature unless it is genuinely shared.
 - **`src/hooks/`:** Reusable vanilla JavaScript lifecycle/DOM or async helpers only when they simplify multiple consumers. This name does not imply React hooks.
 - **`src/store/`:** Shared in-memory state only when multiple modules need it. Multi-page navigation reloads documents; use Supabase Auth/session mechanisms rather than treating this as a persistent SPA store.
@@ -92,7 +105,7 @@ The `pages/` HTML files remain the URLs and independent document entries. `src/p
 The normal dependency direction is:
 
 ```text
-HTML document -> page module -> layout/shared UI + feature -> service -> Supabase
+HTML document -> src/main.js -> App/page module -> layout/shared UI + feature -> service -> Supabase
                                                                |
                                                                v
                                                  database/storage policies
@@ -115,7 +128,7 @@ There is no application server in the current stack, so do not add empty control
 ## Adding a feature
 
 1. Confirm the feature is part of the current milestone in `docs/implementation-plan.md`.
-2. Add/adjust its HTML entry in `pages/` and build entry configuration if a new document is needed.
+2. Add/adjust its HTML entry in `pages/` and Vite's build/URL map if a new document is needed. The home document remains at the project root.
 3. Keep the corresponding `src/pages/` module focused on composing the feature and layout.
 4. Put domain behavior in the appropriate `src/features/<name>/`; share UI only when it is domain-neutral.
 5. Add SQL migrations and policy/integrity tests for data access or booking behavior before relying on client-side controls.

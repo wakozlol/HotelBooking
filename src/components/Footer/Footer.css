@@ -1,0 +1,14 @@
+.site-footer {
+  background: var(--bs-tertiary-bg);
+}
+
+.site-footer a {
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}
