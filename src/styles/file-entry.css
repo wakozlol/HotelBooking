@@ -55,6 +55,7 @@ body {
 }
 
 .file-header nav a,
+.file-header__account > a:not(.file-button),
 .file-footer nav a {
   color: rgb(255 255 255 / 88%);
   text-decoration: none;
@@ -62,6 +63,8 @@ body {
 
 .file-header nav a:hover,
 .file-header nav a:focus-visible,
+.file-header__account > a:not(.file-button):hover,
+.file-header__account > a:not(.file-button):focus-visible,
 .file-footer nav a:hover,
 .file-footer nav a:focus-visible {
   color: #ffd17d;

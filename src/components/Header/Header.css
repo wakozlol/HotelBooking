@@ -69,7 +69,15 @@
 
 .site-header .site-login {
   border-color: rgb(255 255 255 / 72%);
+  color: #fff;
   font-weight: 600;
+}
+
+.site-header .site-login:hover,
+.site-header .site-login:focus-visible {
+  border-color: #fff;
+  background-color: rgb(255 255 255 / 14%);
+  color: #fff;
 }
 
 .site-header .site-register {
