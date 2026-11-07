@@ -1,0 +1,14 @@
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}

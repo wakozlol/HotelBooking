@@ -25,10 +25,11 @@ Complete and validate one milestone at a time. Do not begin a later milestone un
 ### 1. Application foundation
 
 - Establish the Node.js/npm project and Vite configuration using JavaScript ES modules.
-- Define separate HTML entry files and build configuration for the required public, guest, and admin areas.
+- Define separate HTML entry files and build configuration for the required public, guest, and admin areas, including `/booking/` for the specified booking URL.
 - Add the shared CSS/Bootstrap and JavaScript structure needed by the pages without implementing future product behavior.
 - Document required local configuration using placeholders only; do not add real credentials.
 - **Acceptance:** dependencies install reproducibly, the production build emits each configured page, and the pages load their shared assets.
+- **Status:** Complete. Vite 7.3.7 builds all 15 HTML entries, and production preview returned HTTP 200 for every page and its built assets, including nested pages with query parameters.
 
 ### 2. Supabase data model, policies, and migrations
 
