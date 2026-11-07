@@ -4,11 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="../../src/styles/file-entry.css" />
     <meta name="description" content="View your bookings." />
     <title>My bookings | Hotel Booking</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" data-entry="my-bookings"></div>
+    <script>
+      if (location.protocol === "file:") {
+        const fallback = document.createElement("script");
+        fallback.src = new URL("../../src/file-entry.js", location.href).href;
+        document.head.append(fallback);
+      }
+    </script>
     <script type="module" src="../../src/pages/my-bookings.js"></script>
   </body>
 </html>

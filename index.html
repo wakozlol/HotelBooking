@@ -9,10 +9,18 @@
     />
     <meta name="theme-color" content="#164e63" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="./src/styles/file-entry.css" />
     <title>Hotel Booking | Find your next stay</title>
   </head>
   <body>
-    <div id="app" data-page="home"></div>
+    <div id="app" data-entry="home"></div>
+    <script>
+      if (location.protocol === "file:") {
+        const fallback = document.createElement("script");
+        fallback.src = new URL("./src/file-entry.js", location.href).href;
+        document.head.append(fallback);
+      }
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

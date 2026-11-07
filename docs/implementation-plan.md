@@ -30,8 +30,8 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Keep the home `index.html` in the project root and establish separate HTML entry files for the other public, guest, and admin routes, with page modules under `src/pages/`.
 - Add only the shared structure and assets needed to build and load the multi-page application; do not implement later milestone behavior.
 - Document required local configuration with placeholders only.
-- **Acceptance:** dependencies install reproducibly, the production build emits the root home page and every configured route, and each page loads its shared assets through the appropriate shared layout.
-- **Status:** Complete. Vite builds the root home page and 14 multi-page routes. Development routes, shared public/auth/admin layouts, and generated assets were smoke-tested.
+- **Acceptance:** dependencies install reproducibly, the production build emits the root home page and every configured route, every page loads its shared assets through the appropriate shared layout, and the root home page remains visible when opened directly without Vite.
+- **Status:** Complete. Vite builds the root home page and 14 multi-page routes. Development routes, shared public/auth/admin layouts, generated assets, and the direct-file home fallback were smoke-tested.
 
 ### 2. Supabase data model, policies, and migrations
 
