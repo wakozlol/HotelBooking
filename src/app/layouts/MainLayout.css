@@ -32,6 +32,7 @@
 
 .home-hero__content h1 {
   max-width: 13ch;
+  color: #fff;
   text-wrap: balance;
 }
 
