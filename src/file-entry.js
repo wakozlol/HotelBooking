@@ -181,8 +181,9 @@
     const header = document.createElement("header");
     header.className = admin ? "file-header file-header--admin" : "file-header";
 
+    const brandText = admin ? "Hotel Booking Admin" : "Hotel Booking";
     const brand = createLink(
-      admin ? "Hotel Booking Admin" : "Hotel Booking",
+      brandText,
       admin ? "admin" : "home",
       "file-brand",
     );
@@ -274,7 +275,7 @@
     footerTitle.textContent = "Hotel Booking";
     const footerDescription = document.createElement("p");
     footerDescription.textContent =
-      "Find a comfortable stay for your next trip.";
+      "Find your next favorite place to stay and make every journey memorable.";
     footerBrand.append(footerTitle, footerDescription);
 
     const footerNav = document.createElement("nav");
@@ -284,7 +285,9 @@
       createLink("My bookings", "my-bookings"),
       createLink("Sign in", "login"),
     );
-    footer.append(footerBrand, footerNav);
+    const copyright = document.createElement("p");
+    copyright.textContent = `© ${new Date().getFullYear()} Hotel Booking. All rights reserved.`;
+    footer.append(footerBrand, footerNav, copyright);
     shell.append(footer);
   }
 

@@ -1,12 +1,115 @@
 .site-header {
   z-index: 1020;
+  position: relative;
+  isolation: isolate;
+  background-color: #07545b;
+  background-image:
+    linear-gradient(105deg, rgb(5 47 60 / 88%), rgb(9 113 115 / 66%) 56%, rgb(226 130 72 / 55%)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2200&q=85");
+  background-position: center 46%;
+  background-size: cover;
+  box-shadow: 0 0.5rem 1.5rem rgb(15 44 51 / 15%);
+}
+
+.site-header .navbar {
+  min-height: 5.25rem;
+}
+
+.site-header .navbar-brand,
+.site-header .nav-link {
+  color: #fff;
 }
 
 .site-header .navbar-brand {
-  color: var(--bs-primary-text-emphasis);
-  letter-spacing: -0.025em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-right: 1.5rem;
+  font-size: 1.08rem;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+
+.site-header .navbar-brand:hover,
+.site-header .navbar-brand:focus-visible {
+  color: #fff;
+}
+
+.site-brand__mark {
+  display: grid;
+  width: 2.45rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 0.85rem 0.85rem 0.85rem 0.3rem;
+  background: linear-gradient(145deg, #ffc766, #f18b58);
+  box-shadow: 0 0.35rem 1rem rgb(16 40 46 / 25%);
+  color: #173c43;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.site-brand__accent {
+  color: #ffd17d;
 }
 
 .site-header .nav-link {
   white-space: nowrap;
+  border-radius: 0.65rem;
+  font-weight: 550;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.site-header .nav-link:hover,
+.site-header .nav-link:focus-visible {
+  background: rgb(255 255 255 / 14%);
+  color: #fff;
+}
+
+.site-header .site-search-link {
+  padding-inline: 0.9rem;
+}
+
+.site-header .site-login {
+  border-color: rgb(255 255 255 / 72%);
+  font-weight: 600;
+}
+
+.site-header .site-register {
+  border-color: #ffd17d;
+  background: #ffd17d;
+  color: #173c43;
+  font-weight: 700;
+}
+
+.site-header .site-register:hover,
+.site-header .site-register:focus-visible {
+  border-color: #ffe2aa;
+  background: #ffe2aa;
+  color: #173c43;
+}
+
+.site-nav-toggle {
+  border-color: rgb(255 255 255 / 70%);
+}
+
+.site-nav-toggle .navbar-toggler-icon {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 991.98px) {
+  .site-header .navbar-collapse {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: 1rem;
+    background: rgb(4 46 56 / 82%);
+    backdrop-filter: blur(12px);
+  }
+
+  .site-header .site-header__actions {
+    border-top: 1px solid rgb(255 255 255 / 18%);
+  }
 }

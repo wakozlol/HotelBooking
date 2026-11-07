@@ -5,15 +5,13 @@ body {
 .file-site {
   --file-ink: #142a33;
   --file-muted: #60757e;
-  --file-primary: #164e63;
-  --file-border: #dce5e8;
+  --file-primary: #0a5660;
+  --file-border: rgb(255 255 255 / 24%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   color: var(--file-ink);
-  background:
-    radial-gradient(ellipse at 82% 24%, #d7eee9 0, transparent 34rem),
-    linear-gradient(140deg, #f8fbfa 0%, #edf5f2 100%);
+  background: linear-gradient(140deg, #f8fbfa 0%, #edf5f2 100%);
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -30,13 +28,26 @@ body {
 .file-header,
 .file-auth-header {
   width: min(100% - 3rem, 76rem);
-  min-height: 5.5rem;
   margin-inline: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  border-bottom: 1px solid var(--file-border);
+}
+
+.file-header {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 0.85rem max(1.5rem, calc((100% - 76rem) / 2));
+  background-color: #07545b;
+  background-image:
+    linear-gradient(105deg, rgb(5 47 60 / 88%), rgb(9 113 115 / 66%) 56%, rgb(226 130 72 / 55%)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2200&q=85");
+  background-position: center 46%;
+  background-size: cover;
+  box-shadow: 0 0.5rem 1.5rem rgb(15 44 51 / 15%);
 }
 
 .file-header nav,
@@ -50,17 +61,39 @@ body {
 
 .file-header nav a,
 .file-footer nav a {
-  color: var(--file-muted);
+  color: rgb(255 255 255 / 88%);
   text-decoration: none;
 }
 
+.file-header nav a:hover,
+.file-header nav a:focus-visible,
+.file-footer nav a:hover,
+.file-footer nav a:focus-visible {
+  color: #ffd17d;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .file-brand {
-  color: var(--file-primary) !important;
-  font-size: 1.15rem;
+  color: #fff !important;
+  font-size: 1.1rem;
   font-weight: 750;
   letter-spacing: -0.035em;
   text-decoration: none;
   white-space: nowrap;
+}
+
+.file-brand::before {
+  content: "H";
+  display: inline-grid;
+  width: 2.35rem;
+  aspect-ratio: 1;
+  margin-right: 0.65rem;
+  place-items: center;
+  border-radius: 0.8rem 0.8rem 0.8rem 0.25rem;
+  background: linear-gradient(145deg, #ffd17d, #f18b58);
+  color: #173c43;
+  font-size: 1.2rem;
 }
 
 .file-button {
@@ -69,17 +102,18 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0.7rem 1.1rem;
-  border: 1px solid var(--file-primary);
+  border: 1px solid #ffd17d;
   border-radius: 0.55rem;
-  background: var(--file-primary);
-  color: #fff !important;
+  background: #ffd17d;
+  color: #173c43 !important;
   font-weight: 650;
   text-decoration: none;
 }
 
 .file-button:hover,
 .file-button:focus-visible {
-  background: #0c3544;
+  border-color: #ffe2aa;
+  background: #ffe2aa;
 }
 
 .file-main {
@@ -124,20 +158,25 @@ body {
 }
 
 .file-footer {
-  width: min(100% - 3rem, 76rem);
-  margin-inline: auto;
-  padding-block: 1.5rem;
+  width: 100%;
+  padding: 2.25rem max(1.5rem, calc((100% - 76rem) / 2));
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.5rem;
-  border-top: 1px solid var(--file-border);
+  background-color: #102f3a;
+  background-image:
+    linear-gradient(110deg, rgb(7 34 47 / 96%), rgb(10 68 75 / 91%) 58%, rgb(119 67 52 / 75%)),
+    url("https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=2200&q=80");
+  background-position: center 57%;
+  background-size: cover;
+  color: #fff;
 }
 
 .file-footer p {
   margin: 0.35rem 0 0;
-  color: var(--file-muted);
+  color: rgb(255 255 255 / 76%);
 }
 
 .file-header--admin {
@@ -157,7 +196,7 @@ body {
 @media (max-width: 760px) {
   .file-header {
     min-height: auto;
-    padding-block: 1rem;
+    padding: 1rem 1.5rem;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -168,6 +207,12 @@ body {
 
   .file-main {
     padding-block: 5rem;
+  }
+
+  .file-footer {
+    padding: 2rem 1.5rem;
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
