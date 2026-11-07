@@ -78,7 +78,7 @@ The previously deleted route HTML, page modules, shared shell, and Vite configur
 └── vite.config.js
 ```
 
-The root `index.html` loads `src/main.js`, which initializes global styles and calls `src/app/App.js`. `App.js` renders the home page and selects a shared layout for page modules. Other HTML documents remain separate Vite entries under `pages/`; a small Vite mapping preserves their root-level public URLs without client-side routing. `src/pages/` provides each document's JavaScript composition module. A small classic-script fallback renders static page content when an HTML file is opened directly via `file://`; Supabase-backed behavior still requires the Vite development server.
+The root `index.html` loads `src/main.js` through Vite, which initializes global styles and calls `src/app/App.js`. `App.js` renders the home page and selects a shared layout for page modules. Other HTML documents remain separate Vite entries under `pages/`; a small Vite mapping preserves their root-level public URLs without client-side routing. `src/pages/` provides each document's JavaScript composition module. A classic-script fallback renders static page content when opened directly or served by a plain static server such as VS Code Live Server. Supabase-backed behavior and full application modules require Vite (`npm run dev`).
 
 ## Responsibilities
 

@@ -1,26 +1,62 @@
 import { mkdir, rename } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
 const projectRoot = fileURLToPath(new URL(".", import.meta.url));
 
 const pages = [
-  { route: "/hotels/", file: "hotels/index.html" },
-  { route: "/hotel/", file: "hotel/index.html" },
-  { route: "/booking/", file: "booking/index.html" },
-  { route: "/login/", file: "login/index.html" },
-  { route: "/register/", file: "register/index.html" },
-  { route: "/booking-confirmation/", file: "booking-confirmation/index.html" },
-  { route: "/my-bookings/", file: "my-bookings/index.html" },
-  { route: "/booking-details/", file: "booking-details/index.html" },
-  { route: "/account/", file: "account/index.html" },
-  { route: "/admin/", file: "admin/index.html" },
-  { route: "/admin/hotels/", file: "admin/hotels/index.html" },
-  { route: "/admin/hotel-edit/", file: "admin/hotel-edit/index.html" },
-  { route: "/admin/rooms/", file: "admin/rooms/index.html" },
-  { route: "/admin/bookings/", file: "admin/bookings/index.html" },
+  { route: "/hotels/", file: "hotels/index.html", module: "hotels.js" },
+  { route: "/hotel/", file: "hotel/index.html", module: "hotel.js" },
+  { route: "/booking/", file: "booking/index.html", module: "booking.js" },
+  { route: "/login/", file: "login/index.html", module: "login.js" },
+  { route: "/register/", file: "register/index.html", module: "register.js" },
+  {
+    route: "/booking-confirmation/",
+    file: "booking-confirmation/index.html",
+    module: "booking-confirmation.js",
+  },
+  {
+    route: "/my-bookings/",
+    file: "my-bookings/index.html",
+    module: "my-bookings.js",
+  },
+  {
+    route: "/booking-details/",
+    file: "booking-details/index.html",
+    module: "booking-details.js",
+  },
+  { route: "/account/", file: "account/index.html", module: "account.js" },
+  { route: "/admin/", file: "admin/index.html", module: "admin.js" },
+  {
+    route: "/admin/hotels/",
+    file: "admin/hotels/index.html",
+    module: "admin-hotels.js",
+  },
+  {
+    route: "/admin/hotel-edit/",
+    file: "admin/hotel-edit/index.html",
+    module: "admin-hotel-edit.js",
+  },
+  {
+    route: "/admin/rooms/",
+    file: "admin/rooms/index.html",
+    module: "admin-rooms.js",
+  },
+  {
+    route: "/admin/bookings/",
+    file: "admin/bookings/index.html",
+    module: "admin-bookings.js",
+  },
 ];
+
+const pageEntries = new Map([
+  ["index.html", "/src/main.js"],
+  ...pages.map(({ file, module }) => [
+    `pages/${file}`,
+    `/src/pages/${module}`,
+  ]),
+]);
 
 const routeFiles = new Map(
   pages.flatMap(({ route, file }) => [
@@ -33,6 +69,33 @@ function mapPageUrls() {
   return {
     name: "hotel-booking-page-urls",
     enforce: "post",
+    transformIndexHtml: {
+      order: "pre",
+      handler(_html, context) {
+        const pagePath = relative(projectRoot, context.filename).replaceAll(
+          "\\",
+          "/",
+        );
+        const modulePath = pageEntries.get(pagePath);
+        const tags = [
+          {
+            tag: "script",
+            children: "window.__HOTEL_BOOKING_VITE__ = true;",
+            injectTo: "head-prepend",
+          },
+        ];
+
+        if (modulePath) {
+          tags.push({
+            tag: "script",
+            attrs: { type: "module", src: modulePath },
+            injectTo: "body",
+          });
+        }
+
+        return tags;
+      },
+    },
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
         const [pathname, query] = (request.url ?? "/").split("?");

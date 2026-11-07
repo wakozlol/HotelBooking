@@ -11,12 +11,11 @@
   <body>
     <div id="app" data-entry="booking-details"></div>
     <script>
-      if (location.protocol === "file:") {
+      if (!window.__HOTEL_BOOKING_VITE__) {
         const fallback = document.createElement("script");
         fallback.src = new URL("../../src/file-entry.js", location.href).href;
         document.head.append(fallback);
       }
     </script>
-    <script type="module" src="../../src/pages/booking-details.js"></script>
   </body>
 </html>

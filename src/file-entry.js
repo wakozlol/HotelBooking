@@ -1,14 +1,14 @@
 (() => {
+  if (window.__HOTEL_BOOKING_VITE__ === true) {
+    return;
+  }
+
   const app = document.querySelector("#app");
   const entryScript = document.currentScript;
   const entry = app?.dataset.entry;
 
-  if (window.location.protocol !== "file:") {
-    return;
-  }
-
   if (!entryScript || !app || !entry) {
-    throw new Error("Page is missing its local-file fallback configuration.");
+    throw new Error("Page is missing its static-file fallback configuration.");
   }
 
   const projectRoot = new URL("../", entryScript.src);
@@ -157,11 +157,14 @@
     throw new Error(`Unknown page entry: ${entry}`);
   }
 
-  const favicon = document.createElement("link");
+  const favicon =
+    document.querySelector('link[rel="icon"]') ?? document.createElement("link");
   favicon.rel = "icon";
   favicon.type = "image/svg+xml";
   favicon.href = new URL("public/favicon.svg", projectRoot).href;
-  document.head.append(favicon);
+  if (!favicon.isConnected) {
+    document.head.append(favicon);
+  }
   document.title = `${page.title} | Hotel Booking`;
 
   function createLink(label, route, className = "") {
