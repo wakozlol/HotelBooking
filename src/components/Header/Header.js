@@ -4,11 +4,10 @@ import {
   subscribeToAuthChanges,
 } from "../../services/auth-service.js";
 import { isSupabaseConfigured } from "../../services/supabase.js";
+import { createAuthModal } from "../AuthModal/AuthModal.js";
 
 const navigationItems = [
   { label: "Hotels", href: "/hotels/" },
-  { label: "My bookings", href: "/my-bookings/" },
-  { label: "Account", href: "/account/" },
   { label: "Admin", href: "/admin/" },
 ];
 
@@ -95,45 +94,97 @@ export function createHeader() {
   register.href = "/register/";
   register.textContent = "Register";
 
-  const logout = document.createElement("button");
-  logout.className = "btn btn-warning btn-sm site-register";
-  logout.type = "button";
-  logout.textContent = "Log out";
-
   const authStatus = document.createElement("span");
   authStatus.className = "visually-hidden";
   authStatus.setAttribute("role", "status");
   authStatus.setAttribute("aria-live", "polite");
 
-  function renderAuthActions(signedIn) {
-    authItem.replaceChildren(
-      ...(signedIn ? [logout, authStatus] : [login, register, authStatus]),
-    );
-    authStatus.className = "visually-hidden";
-    authStatus.textContent = "";
+  const authModal = createAuthModal();
+  document.body.append(authModal.element);
+
+  login.addEventListener("click", (event) => {
+    event.preventDefault();
+    authModal.open("login");
+  });
+  register.addEventListener("click", (event) => {
+    event.preventDefault();
+    authModal.open("register");
+  });
+
+  function createAccountMenu(user) {
+    const dropdown = document.createElement("div");
+    dropdown.className = "dropdown";
+    const accountButton = document.createElement("button");
+    accountButton.className =
+      "btn btn-outline-light btn-sm dropdown-toggle site-account-toggle";
+    accountButton.type = "button";
+    accountButton.setAttribute("data-bs-toggle", "dropdown");
+    accountButton.setAttribute("aria-expanded", "false");
+    const metadataName = user.user_metadata?.first_name;
+    const firstName =
+      typeof metadataName === "string" ? metadataName.trim() : "";
+    accountButton.textContent = firstName || "My account";
+
+    const menu = document.createElement("ul");
+    menu.className = "dropdown-menu dropdown-menu-end";
+    for (const [label, href] of [
+      ["My Account", "/account/"],
+      ["My Bookings", "/my-bookings/"],
+    ]) {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      link.className = "dropdown-item";
+      link.href = href;
+      link.textContent = label;
+      item.append(link);
+      menu.append(item);
+    }
+
+    const logoutItem = document.createElement("li");
+    const logoutButton = document.createElement("button");
+    logoutButton.className = "dropdown-item";
+    logoutButton.type = "button";
+    logoutButton.textContent = "Log out";
+    logoutButton.addEventListener("click", () => {
+      void signOutFromHeader(logoutButton);
+    });
+    logoutItem.append(logoutButton);
+    menu.append(logoutItem);
+    dropdown.append(accountButton, menu);
+    return dropdown;
   }
 
-  logout.addEventListener("click", async () => {
-    logout.disabled = true;
-    logout.textContent = "Signing out...";
+  async function signOutFromHeader(button) {
+    button.disabled = true;
+    button.textContent = "Signing out...";
     try {
       await signOutUser();
       window.location.replace("/login/");
     } catch (error) {
       authStatus.className = "site-header__auth-status";
       authStatus.textContent = error.message;
-      logout.disabled = false;
-      logout.textContent = "Log out";
+      button.disabled = false;
+      button.textContent = "Log out";
     }
-  });
+  }
 
-  renderAuthActions(false);
+  function renderAuthActions(user) {
+    authItem.replaceChildren(
+      ...(user
+        ? [createAccountMenu(user), authStatus]
+        : [login, register, authStatus]),
+    );
+    authStatus.className = "visually-hidden";
+    authStatus.textContent = "";
+  }
+
+  renderAuthActions(null);
   if (isSupabaseConfigured()) {
     try {
       const {
         data: { subscription },
       } = subscribeToAuthChanges((_event, session) => {
-        renderAuthActions(Boolean(session?.user));
+        renderAuthActions(session?.user ?? null);
       });
       window.addEventListener(
         "pagehide",

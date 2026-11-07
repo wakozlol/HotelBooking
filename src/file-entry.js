@@ -59,6 +59,13 @@
       layout: "auth",
       links: [{ label: "Already registered? Log in", route: "login" }],
     },
+    "reset-password": {
+      title: "Reset password",
+      description:
+        "Password resets require the Vite development server and your local Supabase configuration. Open the reset link from your email with the site running.",
+      layout: "auth",
+      links: [{ label: "Return to log in", route: "login" }],
+    },
     "booking-confirmation": {
       title: "Booking confirmation",
       description:
@@ -140,6 +147,7 @@
     booking: "pages/booking/index.html",
     login: "pages/login/index.html",
     register: "pages/register/index.html",
+    "reset-password": "pages/reset-password/index.html",
     "booking-confirmation": "pages/booking-confirmation/index.html",
     "my-bookings": "pages/my-bookings/index.html",
     "booking-details": "pages/booking-details/index.html",

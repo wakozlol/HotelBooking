@@ -115,6 +115,60 @@ export async function signOutUser() {
   }
 }
 
+export async function requestPasswordReset(email) {
+  let result;
+
+  try {
+    result = await getSupabaseClient().auth.resetPasswordForEmail(
+      email.trim().toLowerCase(),
+      {
+        redirectTo: new URL("/reset-password/", window.location.origin).href,
+      },
+    );
+  } catch (error) {
+    if (error instanceof SupabaseConfigurationError) {
+      throw error;
+    }
+    throw new AuthServiceError(
+      "We could not send a reset link right now. Please try again.",
+    );
+  }
+
+  if (result.error) {
+    if (result.error.status === 429) {
+      throw new AuthServiceError(
+        "Too many reset requests. Please wait a moment and try again.",
+      );
+    }
+    throw new AuthServiceError(
+      "We could not send a reset link right now. Please try again.",
+    );
+  }
+}
+
+export async function updatePassword(password) {
+  let result;
+
+  try {
+    result = await getSupabaseClient().auth.updateUser({ password });
+  } catch (error) {
+    if (error instanceof SupabaseConfigurationError) {
+      throw error;
+    }
+    throw new AuthServiceError(
+      "We could not update your password. Request a new reset link and try again.",
+    );
+  }
+
+  if (result.error || !result.data.user) {
+    throw new AuthServiceError(
+      "We could not update your password. Request a new reset link and try again.",
+    );
+  }
+
+  return result.data.user;
+}
+
 export async function getAuthenticatedUser() {
   let result;
 

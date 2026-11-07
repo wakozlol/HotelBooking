@@ -12,6 +12,11 @@ const pages = [
   { route: "/login/", file: "login/index.html", module: "login.js" },
   { route: "/register/", file: "register/index.html", module: "register.js" },
   {
+    route: "/reset-password/",
+    file: "reset-password/index.html",
+    module: "reset-password.js",
+  },
+  {
     route: "/booking-confirmation/",
     file: "booking-confirmation/index.html",
     module: "booking-confirmation.js",
