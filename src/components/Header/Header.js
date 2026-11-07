@@ -1,4 +1,9 @@
 import "./Header.css";
+import {
+  signOutUser,
+  subscribeToAuthChanges,
+} from "../../services/auth-service.js";
+import { isSupabaseConfigured } from "../../services/supabase.js";
 
 const navigationItems = [
   { label: "Hotels", href: "/hotels/" },
@@ -89,7 +94,59 @@ export function createHeader() {
   register.className = "btn btn-warning btn-sm site-register";
   register.href = "/register/";
   register.textContent = "Register";
-  authItem.append(login, register);
+
+  const logout = document.createElement("button");
+  logout.className = "btn btn-warning btn-sm site-register";
+  logout.type = "button";
+  logout.textContent = "Log out";
+
+  const authStatus = document.createElement("span");
+  authStatus.className = "visually-hidden";
+  authStatus.setAttribute("role", "status");
+  authStatus.setAttribute("aria-live", "polite");
+
+  function renderAuthActions(signedIn) {
+    authItem.replaceChildren(
+      ...(signedIn ? [logout, authStatus] : [login, register, authStatus]),
+    );
+    authStatus.className = "visually-hidden";
+    authStatus.textContent = "";
+  }
+
+  logout.addEventListener("click", async () => {
+    logout.disabled = true;
+    logout.textContent = "Signing out...";
+    try {
+      await signOutUser();
+      window.location.replace("/login/");
+    } catch (error) {
+      authStatus.className = "site-header__auth-status";
+      authStatus.textContent = error.message;
+      logout.disabled = false;
+      logout.textContent = "Log out";
+    }
+  });
+
+  renderAuthActions(false);
+  if (isSupabaseConfigured()) {
+    try {
+      const {
+        data: { subscription },
+      } = subscribeToAuthChanges((_event, session) => {
+        renderAuthActions(Boolean(session?.user));
+      });
+      window.addEventListener(
+        "pagehide",
+        () => subscription.unsubscribe(),
+        { once: true },
+      );
+    } catch (error) {
+      authStatus.className = "site-header__auth-status";
+      authStatus.textContent =
+        "Account status is unavailable. Use the account page to check your sign-in.";
+    }
+  }
+
   list.append(authItem);
 
   collapse.append(list);

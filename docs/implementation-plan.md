@@ -33,7 +33,17 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - **Acceptance:** dependencies install reproducibly, the production build emits the root home page and every configured route, every page loads its shared assets through the appropriate shared layout, and the root home page remains visible when opened directly without Vite.
 - **Status:** Complete. Vite builds the root home page and 14 multi-page routes. Development routes, shared public/auth/admin layouts, generated assets, and the direct-file home fallback were smoke-tested.
 
-### 2. Supabase data model, policies, and migrations
+### 2. Guest authentication (approved fast-track)
+
+- Implement registration, login, logout, and authenticated page state using Supabase Auth in the existing MPA.
+- Create the guest `profiles` table linked to `auth.users`, with own-row RLS, restricted column grants, and signup profile creation.
+- Protect account and booking-related routes with server-verified user checks; use RLS as the data authorization boundary.
+- Configure the browser client only with the public Supabase URL and publishable/anon key; never put privileged keys in `VITE_` variables.
+- **Acceptance:** responsive auth forms validate input, handle confirmation and failures safely, sessions persist across pages, profiles can be loaded/updated, and unauthenticated protected routes redirect to login.
+- **Sequence decision:** the owner approved moving this milestone ahead of the broader hotel/room/reservation schema, shared browse services, and public browsing. The connected `HotelReservations` project was inspected: `public` has no tables, its migration history is empty, and there are no custom `auth.users` triggers. The profile migration is committed but must be reviewed and run in the Supabase SQL Editor. Actual auth/profile/RLS tests remain pending local public-key configuration and applying that migration.
+- **Status:** Implementation is ready for project configuration. Full Supabase auth, profile, email-confirmation, and RLS acceptance checks are pending until the migration is run and local public credentials are configured.
+
+### 3. Supabase data model, policies, and migrations
 
 - Design and commit migrations for hotels, room types, physical rooms, reservations, and required supporting records.
 - Define roles, constraints, indexes, and Row Level Security policies for guest and admin access.
@@ -41,23 +51,17 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Document a migration workflow that checks remote history before applying changes.
 - **Acceptance:** migrations apply in a clean local or test database; authorization, reservation integrity, and concurrent booking tests reject unauthorized access and double-booking. Apply remotely only when real credentials and migration history are available and verified.
 
-### 3. Shared UI and Supabase client services
+### 4. Shared UI and Supabase client services
 
 - Implement accessible, responsive shared navigation, layout, form, feedback, and error-handling patterns.
 - Configure the browser Supabase client to accept only the required public project URL and publishable/anon key; rely on database and storage policies for access control.
 - **Acceptance:** shared components work across separate pages, configuration errors are clear, and no privileged key is present in browser assets.
 
-### 4. Public hotel browsing and availability search
+### 5. Public hotel browsing and availability search
 
 - Display public hotel and room-type information and support searching by the agreed stay details and guest criteria.
 - Show availability and prices in EUR without suggesting payment is collected online.
 - **Acceptance:** search results match database availability for the selected criteria; forms and results are keyboard-accessible and responsive.
-
-### 5. Guest authentication
-
-- Implement registration, login, logout, and authenticated page state using Supabase Auth.
-- Provide clear loading, validation, and failure states without exposing sensitive data.
-- **Acceptance:** guest sessions work across the pages and guests cannot access another user's protected data.
 
 ### 6. Reservations, booking history, and cancellation
 

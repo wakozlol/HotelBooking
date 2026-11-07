@@ -50,7 +50,7 @@ export function initializeApp() {
     throw new Error('Page is missing the required "#app" element.');
   }
 
-  if (app.dataset.page === "home") {
+  if (app.dataset.page === "home" || app.dataset.entry === "home") {
     renderHomePage();
   }
 }

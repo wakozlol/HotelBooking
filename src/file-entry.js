@@ -48,13 +48,14 @@
     login: {
       title: "Log in",
       description:
-        "Guest authentication will be implemented in a later milestone.",
+        "Sign-in requires the Vite development server and your local Supabase configuration. Run npm run dev to use authentication.",
       layout: "auth",
       links: [{ label: "Create an account", route: "register" }],
     },
     register: {
       title: "Create an account",
-      description: "Guest registration will be implemented in a later milestone.",
+      description:
+        "Registration requires the Vite development server and your local Supabase configuration. Run npm run dev to create an account.",
       layout: "auth",
       links: [{ label: "Already registered? Log in", route: "login" }],
     },
@@ -83,11 +84,9 @@
     },
     account: {
       title: "Account",
-      description: "Account settings will be implemented with guest authentication.",
-      links: [
-        { label: "Log in", route: "login" },
-        { label: "My bookings", route: "my-bookings" },
-      ],
+      description:
+        "Account management requires Vite and the configured Supabase project. Run npm run dev and sign in to access your profile.",
+      links: [{ label: "Log in", route: "login" }],
     },
     admin: {
       title: "Administration",

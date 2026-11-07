@@ -2,7 +2,7 @@
 
 ## Context
 
-The application uses a root `index.html` for the home entry and independent HTML entries under `pages/` for the other routes. Page-level vanilla JavaScript ES modules live under `src/pages/`, and Vite builds these as multiple entries. Bootstrap supplies the UI toolkit, and Supabase is the planned hosted backend. Keep this a multi-page application: do not introduce a client-side SPA router or a frontend framework.
+The application uses a root `index.html` for the home entry and independent HTML entries under `pages/` for the other routes. Page-level vanilla JavaScript ES modules live under `src/pages/`, and Vite builds these as multiple entries. Bootstrap supplies the UI toolkit, and Supabase provides authentication and the database. Keep this a multi-page application: do not introduce a client-side SPA router or a frontend framework.
 
 The previously deleted route HTML, page modules, shared shell, and Vite configuration have been restored from the committed baseline with owner approval. Other unrelated pre-existing deletions remain untouched.
 
@@ -40,7 +40,7 @@ The previously deleted route HTML, page modules, shared shell, and Vite configur
 │   │       └── PageContent.js
 │   ├── pages/                          # Thin page entry modules
 │   ├── features/
-│   │   ├── auth/
+│   │   ├── auth/                       # Forms, account view, and auth styling
 │   │   ├── hotels/
 │   │   ├── rooms/
 │   │   ├── bookings/
@@ -67,7 +67,7 @@ The previously deleted route HTML, page modules, shared shell, and Vite configur
 │   ├── styles/                         # Global CSS, tokens, and Bootstrap overrides
 │   └── config/
 ├── supabase/
-│   └── migrations/
+│   └── migrations/                     # Versioned schema and policy changes
 ├── tests/
 │   ├── unit/
 │   ├── integration/
@@ -80,6 +80,10 @@ The previously deleted route HTML, page modules, shared shell, and Vite configur
 
 The root `index.html` loads `src/main.js` through Vite, which initializes global styles and calls `src/app/App.js`. `App.js` renders the home page and selects a shared layout for page modules. Other HTML documents remain separate Vite entries under `pages/`; a small Vite mapping preserves their root-level public URLs without client-side routing. `src/pages/` provides each document's JavaScript composition module. A classic-script fallback renders static page content when opened directly or served by a plain static server such as VS Code Live Server. Supabase-backed behavior and full application modules require Vite (`npm run dev`).
 
+## Local Supabase setup
+
+Copy `.env.example` to `.env`, set the Supabase project URL and publishable key (or legacy anon key), and restart Vite. Add the local Vite origin's `/account/` path and the actual deployed origin to Supabase Auth's allowed redirect URLs for email confirmation. Never place a service-role/secret key in `.env` under a `VITE_` name. Review the committed profile migration and run it in the Supabase SQL Editor before using registration or profile management. Authentication and profile operations are unavailable in the plain-file/Live Server fallback.
+
 ## Responsibilities
 
 - **`index.html` and `pages/`:** The root document is the home page; separate files in `pages/` are the other public, guest, and admin documents. Each loads its page module and shared styles.
@@ -89,14 +93,14 @@ The root `index.html` loads `src/main.js` through Vite, which initializes global
 - **`src/app/layouts/`:** Public, auth, and admin page shells. `MainLayout` composes the reusable header and footer; auth/admin shells use their own navigation framing.
 - **`src/features/`:** Business capabilities and their feature-specific UI, validation, and operations. Keep related behavior cohesive within a feature.
 - **`src/components/`:** Reusable presentation. `Header/` and `Footer/` are shared site components; `ui/` contains generic controls, `common/` contains shared site pieces, and `forms/` contains reusable accessible form elements.
-- **`src/services/`:** Shared external integrations, such as a browser Supabase client configured from public environment variables. Feature-specific query behavior should stay with its feature unless it is genuinely shared.
+- **`src/services/`:** The browser Supabase client and shared Auth operations. Profile queries live in `profile-service.js`; keep feature-specific data access here only when shared.
 - **`src/hooks/`:** Reusable vanilla JavaScript lifecycle/DOM or async helpers only when they simplify multiple consumers. This name does not imply React hooks.
 - **`src/store/`:** Shared in-memory state only when multiple modules need it. Multi-page navigation reloads documents; use Supabase Auth/session mechanisms rather than treating this as a persistent SPA store.
 - **`src/utils/`, `src/constants/`, `src/config/`:** Small domain-neutral helpers, stable shared values, and validated environment/application configuration, respectively.
 - **`src/types/`:** Optional JSDoc typedefs for shared data contracts. Do not add TypeScript.
 - **`src/assets/`:** Local static images, icons, fonts, and other bundled assets. User-managed hotel images belong in Supabase Storage, not source control.
 - **`src/styles/`:** Shared CSS and Bootstrap overrides, preserving the existing stylesheet convention.
-- **`supabase/migrations/`:** Versioned SQL schema, constraints, Row Level Security policies, and atomic database operations. Check remote migration history before applying.
+- **`supabase/migrations/`:** Versioned SQL schema, constraints, Row Level Security policies, and atomic database operations. Check remote migration history before applying. The guest profile migration is `20261107203000_create_guest_profiles.sql`; review it and execute it in the Supabase SQL Editor before using signup or profile management.
 - **`tests/`:** Unit, database/integration, and browser/end-to-end tests, added with tooling when an implementation milestone needs them.
 - **`scripts/`:** Small repeatable development or migration-support commands; never store credentials here.
 

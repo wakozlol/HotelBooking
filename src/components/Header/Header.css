@@ -80,6 +80,12 @@
   color: #fff;
 }
 
+.site-header__auth-status {
+  max-width: 13rem;
+  color: #fff3cd;
+  font-size: 0.75rem;
+}
+
 .site-header .site-register {
   border-color: #ffd17d;
   background: #ffd17d;

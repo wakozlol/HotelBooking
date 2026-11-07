@@ -1,11 +1,7 @@
 import "../main.js";
-import { renderPage } from "../components/site-shell.js";
+import { renderProtectedPlaceholder } from "../utils/auth-guard.js";
 
-renderPage({
+void renderProtectedPlaceholder({
   title: "My bookings",
-  description: "Your booking history will appear here after guest accounts and reservations are implemented.",
-  links: [
-    { label: "Log in", href: "/login/" },
-    { label: "Browse hotels", href: "/hotels/" },
-  ],
+  description: "Your booking history will be available here.",
 });

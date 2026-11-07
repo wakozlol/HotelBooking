@@ -1,8 +1,7 @@
 import "../main.js";
-import { renderPage } from "../components/site-shell.js";
+import { renderProtectedPlaceholder } from "../utils/auth-guard.js";
 
-renderPage({
+void renderProtectedPlaceholder({
   title: "Booking details",
   description: "Details for the selected booking will appear here.",
-  links: [{ label: "Back to my bookings", href: "/my-bookings/" }],
 });
