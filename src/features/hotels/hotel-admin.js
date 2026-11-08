@@ -72,8 +72,9 @@ export function createHotelEditModal(onSaved) {
 
   const dialog = document.createElement("div");
   dialog.className = "modal-dialog modal-dialog-centered modal-dialog-scrollable";
-  const content = document.createElement("div");
-  content.className = "modal-content";
+  const form = document.createElement("form");
+  form.className = "modal-content";
+  form.noValidate = true;
 
   const header = document.createElement("div");
   header.className = "modal-header";
@@ -88,8 +89,6 @@ export function createHotelEditModal(onSaved) {
   close.setAttribute("aria-label", "Close hotel editor");
   header.append(title, close);
 
-  const form = document.createElement("form");
-  form.noValidate = true;
   const body = document.createElement("div");
   body.className = "modal-body";
   const status = document.createElement("div");
@@ -168,9 +167,8 @@ export function createHotelEditModal(onSaved) {
   save.textContent = "Save changes";
   footer.append(cancel, save);
 
-  form.append(body, footer);
-  content.append(header, form);
-  dialog.append(content);
+  form.append(header, body, footer);
+  dialog.append(form);
   element.append(dialog);
   document.body.append(element);
 
@@ -225,7 +223,7 @@ export function createHotelEditModal(onSaved) {
     } finally {
       save.disabled = false;
       save.removeAttribute("aria-busy");
-      save.textContent = activeHotel ? "Save changes" : "Create hotel";
+      save.textContent = activeHotel ? "Save changes" : "Add hotel";
     }
   });
 
@@ -235,7 +233,7 @@ export function createHotelEditModal(onSaved) {
       clearStatus();
       form.classList.remove("was-validated");
       title.textContent = hotel ? "Edit hotel" : "Add a hotel";
-      save.textContent = hotel ? "Save changes" : "Create hotel";
+      save.textContent = hotel ? "Save changes" : "Add hotel";
       imageUrl.wrapper.hidden = Boolean(hotel);
       imageUrl.input.required = !hotel;
       name.input.value = hotel?.name ?? "";
