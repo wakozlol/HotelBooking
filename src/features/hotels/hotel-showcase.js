@@ -1,4 +1,11 @@
-import { sampleHotels } from "./sample-hotels.js";
+import { Modal } from "bootstrap";
+import { sampleHotelGalleryByStyle, sampleHotels } from "./sample-hotels.js";
+
+const euroFormatter = new Intl.NumberFormat("en-IE", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+});
 
 function createHotelArtwork(hotel, extraClass = "") {
   const artwork = document.createElement("div");
@@ -33,9 +40,16 @@ function createHotelArtwork(hotel, extraClass = "") {
   return artwork;
 }
 
-function createHotelCard(hotel) {
+function createHotelCard(hotel, showDetails) {
   const card = document.createElement("article");
   card.className = "hotel-card h-100";
+
+  card.addEventListener("click", (event) => {
+    if (event.target.closest(".hotel-art__attribution a")) {
+      return;
+    }
+    showDetails(hotel);
+  });
 
   const artwork = createHotelArtwork(hotel, "hotel-card__art");
 
@@ -62,9 +76,217 @@ function createHotelCard(hotel) {
     highlights.append(item);
   }
 
-  body.append(location, title, description, highlights);
+  const footer = document.createElement("div");
+  footer.className = "hotel-card__footer";
+
+  const rate = document.createElement("p");
+  rate.className = "hotel-card__rate";
+  const rateLabel = document.createElement("span");
+  rateLabel.className = "hotel-card__rate-label";
+  rateLabel.textContent = "Illustrative rate";
+  const rateAmount = document.createElement("strong");
+  rateAmount.textContent = euroFormatter.format(hotel.nightlyRate);
+  const rateUnit = document.createElement("span");
+  rateUnit.className = "hotel-card__rate-unit";
+  rateUnit.textContent = " / night";
+  rate.append(rateLabel, rateAmount, rateUnit);
+
+  const viewDetails = document.createElement("button");
+  viewDetails.className = "btn btn-outline-success hotel-card__action";
+  viewDetails.type = "button";
+  viewDetails.textContent = "View Details";
+  viewDetails.setAttribute("aria-label", `View details for ${hotel.name}`);
+
+  footer.append(rate, viewDetails);
+  body.append(location, title, description, highlights, footer);
   card.append(artwork, body);
   return card;
+}
+
+function createHotelDetailsBody(hotel) {
+  const body = document.createElement("div");
+  body.className = "row g-4 hotel-details";
+
+  const galleryColumn = document.createElement("div");
+  galleryColumn.className = "col-lg-7";
+  const gallery = document.createElement("div");
+  gallery.className = "hotel-details__gallery";
+
+  const hero = document.createElement("img");
+  hero.className = "hotel-details__hero";
+  hero.src = hotel.imageUrl;
+  hero.alt = `${hotel.name} hotel preview`;
+  hero.decoding = "async";
+  gallery.append(hero);
+
+  const galleryCredit = document.createElement("p");
+  galleryCredit.className = "hotel-details__photo-credit";
+  const creditLink = document.createElement("a");
+  creditLink.href = hotel.photoSource;
+  creditLink.target = "_blank";
+  creditLink.rel = "noopener noreferrer";
+  creditLink.textContent = `Cover photo: ${hotel.photoCredit}`;
+  const licenseLink = document.createElement("a");
+  licenseLink.href = hotel.photoLicenseUrl;
+  licenseLink.target = "_blank";
+  licenseLink.rel = "noopener noreferrer";
+  licenseLink.textContent = hotel.photoLicense;
+  galleryCredit.append(creditLink, document.createTextNode(" · "), licenseLink);
+  const unsplashCredit = document.createElement("a");
+  unsplashCredit.href = "https://unsplash.com";
+  unsplashCredit.target = "_blank";
+  unsplashCredit.rel = "noopener noreferrer";
+  unsplashCredit.textContent = "Unsplash";
+
+  const thumbnails = document.createElement("div");
+  thumbnails.className = "hotel-details__thumbnails";
+  const galleryImages = sampleHotelGalleryByStyle[hotel.style] ?? [];
+  galleryImages.forEach((image) => {
+    const thumbnail = document.createElement("button");
+    thumbnail.className = "hotel-details__thumbnail";
+    thumbnail.type = "button";
+    thumbnail.setAttribute("aria-label", `Show ${image.alt}`);
+    thumbnail.setAttribute("aria-pressed", "false");
+
+    const thumbnailImage = document.createElement("img");
+    thumbnailImage.src = image.src;
+    thumbnailImage.alt = "";
+    thumbnailImage.loading = "lazy";
+    thumbnailImage.decoding = "async";
+    thumbnail.append(thumbnailImage);
+    thumbnail.addEventListener("click", () => {
+      hero.src = image.src;
+      hero.alt = image.alt;
+      galleryCredit.replaceChildren(
+        document.createTextNode("Gallery photo via "),
+        unsplashCredit,
+      );
+      thumbnails.querySelectorAll(".hotel-details__thumbnail").forEach((item) => {
+        item.setAttribute("aria-pressed", String(item === thumbnail));
+      });
+    });
+    thumbnails.append(thumbnail);
+  });
+  gallery.append(thumbnails);
+
+  galleryColumn.append(gallery, galleryCredit);
+
+  const detailsColumn = document.createElement("div");
+  detailsColumn.className = "col-lg-5";
+  const location = document.createElement("p");
+  location.className = "hotel-card__location";
+  location.textContent = hotel.location.replace("Sample stay · ", "");
+
+  const description = document.createElement("p");
+  description.className = "hotel-details__description";
+  description.textContent = hotel.description;
+
+  const ratePanel = document.createElement("div");
+  ratePanel.className = "hotel-details__rate";
+  const rateLabel = document.createElement("span");
+  rateLabel.textContent = "Illustrative rate";
+  const rateAmount = document.createElement("strong");
+  rateAmount.textContent = euroFormatter.format(hotel.nightlyRate);
+  const rateUnit = document.createElement("span");
+  rateUnit.textContent = " per night";
+  const rateNote = document.createElement("small");
+  rateNote.textContent = "Example only; not a live offer.";
+  ratePanel.append(rateLabel, rateAmount, rateUnit, rateNote);
+
+  const amenitiesHeading = document.createElement("h3");
+  amenitiesHeading.className = "hotel-details__heading";
+  amenitiesHeading.textContent = "Amenities";
+  const amenities = document.createElement("ul");
+  amenities.className = "hotel-details__amenities";
+  for (const amenity of hotel.amenities) {
+    const item = document.createElement("li");
+    item.textContent = amenity;
+    amenities.append(item);
+  }
+
+  const bookingHeading = document.createElement("h3");
+  bookingHeading.className = "hotel-details__heading";
+  bookingHeading.textContent = "Booking details";
+  const bookingDetails = document.createElement("dl");
+  bookingDetails.className = "hotel-details__booking";
+  for (const [label, value] of [
+    ["Check-in", "Example time: 15:00"],
+    ["Check-out", "Example time: 11:00"],
+    ["Payment", "At the hotel"],
+  ]) {
+    const row = document.createElement("div");
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const description = document.createElement("dd");
+    description.textContent = value;
+    row.append(term, description);
+    bookingDetails.append(row);
+  }
+
+  const availabilityNotice = document.createElement("p");
+  availabilityNotice.className = "hotel-details__notice";
+  availabilityNotice.textContent =
+    "This is an illustrative hotel preview. Live availability and reservations are not connected.";
+
+  detailsColumn.append(
+    location,
+    description,
+    ratePanel,
+    amenitiesHeading,
+    amenities,
+    bookingHeading,
+    bookingDetails,
+    availabilityNotice,
+  );
+  body.append(galleryColumn, detailsColumn);
+  return body;
+}
+
+function createHotelDetailsModal() {
+  const element = document.createElement("div");
+  element.className = "modal fade hotel-details-modal";
+  element.tabIndex = -1;
+  element.setAttribute("aria-hidden", "true");
+  element.setAttribute("aria-labelledby", "hotel-details-modal-title");
+
+  const dialog = document.createElement("div");
+  dialog.className = "modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl";
+  const content = document.createElement("div");
+  content.className = "modal-content";
+
+  const header = document.createElement("div");
+  header.className = "modal-header";
+  const title = document.createElement("h2");
+  title.className = "modal-title fs-4";
+  title.id = "hotel-details-modal-title";
+  const close = document.createElement("button");
+  close.className = "btn-close";
+  close.type = "button";
+  close.setAttribute("data-bs-dismiss", "modal");
+  close.setAttribute("aria-label", "Close hotel details");
+  header.append(title, close);
+
+  const body = document.createElement("div");
+  body.className = "modal-body";
+  content.append(header, body);
+  dialog.append(content);
+  element.append(dialog);
+  document.body.append(element);
+
+  const modal = new Modal(element, {
+    backdrop: true,
+    keyboard: true,
+    focus: true,
+  });
+
+  return {
+    element,
+    open(hotel) {
+      title.textContent = hotel.name;
+      body.replaceChildren(createHotelDetailsBody(hotel));
+      modal.show();
+    },
+  };
 }
 
 function createSampleNotice() {
@@ -72,17 +294,18 @@ function createSampleNotice() {
   notice.className = "hotel-sample-notice";
   notice.setAttribute("role", "note");
   notice.textContent =
-    "These are illustrative sample hotels, not live properties or availability.";
+    "Hotel descriptions, rates, and amenities are illustrative examples—not live property data or bookable availability.";
   return notice;
 }
 
 function createHotelGrid() {
   const grid = document.createElement("div");
   grid.className = "row g-4";
+  const detailsModal = createHotelDetailsModal();
   for (const hotel of sampleHotels) {
     const column = document.createElement("div");
     column.className = "col-md-6 col-xl-3";
-    column.append(createHotelCard(hotel));
+    column.append(createHotelCard(hotel, detailsModal.open));
     grid.append(column);
   }
   return grid;
