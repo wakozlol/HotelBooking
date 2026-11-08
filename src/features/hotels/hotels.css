@@ -199,6 +199,11 @@
   outline-offset: 2px;
 }
 
+.hotel-feature .hotel-art__attribution {
+  right: 4.5rem;
+  bottom: 4rem;
+}
+
 .hotel-art--coastal {
   background-color: #73aeb0;
   background-image:
@@ -348,6 +353,24 @@
 
   .hotel-feature__content {
     padding-inline: 3rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .hotel-art__attribution {
+    top: 0.75rem;
+    right: 0.75rem;
+    bottom: auto;
+    max-width: calc(100% - 1.5rem);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .hotel-feature .hotel-art__attribution {
+    right: 2.5rem;
+    bottom: auto;
+    max-width: calc(100% - 5rem);
   }
 }
 
