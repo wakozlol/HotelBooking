@@ -152,7 +152,7 @@ export function createPasswordField({
 
 export function createSubmitButton(label) {
   const button = document.createElement("button");
-  button.className = "btn btn-primary w-100 mt-2";
+  button.className = "btn btn-primary w-100 mt-2 auth-modal__submit";
   button.type = "submit";
   button.textContent = label;
   return button;
@@ -184,10 +184,11 @@ export function validateForm(form) {
 
 export function createPageLink(label, href, prefix) {
   const paragraph = document.createElement("p");
-  paragraph.className = "text-center mt-4 mb-0";
+  paragraph.className = "text-center mt-4 mb-0 small text-body-secondary";
   paragraph.append(document.createTextNode(prefix));
 
   const link = document.createElement("a");
+  link.className = "auth-modal__switch";
   link.href = href;
   link.textContent = label;
   paragraph.append(" ", link);

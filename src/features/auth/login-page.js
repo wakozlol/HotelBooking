@@ -12,7 +12,10 @@ import {
   setSubmitPending,
   validateForm,
 } from "./auth-ui.js";
-import { signInUser } from "../../services/auth-service.js";
+import {
+  requestPasswordReset,
+  signInUser,
+} from "../../services/auth-service.js";
 import {
   redirectIfAuthenticated,
   takePostLoginRoute,
@@ -27,7 +30,7 @@ export function renderLoginPage() {
   addConfigurationNotice(status);
 
   const form = document.createElement("form");
-  form.className = "auth-form";
+  form.className = "auth-form auth-modal__form";
   form.noValidate = true;
 
   const { wrapper: emailWrapper, input: emailInput } = createField({
@@ -59,9 +62,84 @@ export function renderLoginPage() {
   rememberLabel.textContent = "Remember me";
   rememberWrapper.append(rememberInput, rememberLabel);
 
+  const resetLink = document.createElement("button");
+  resetLink.className = "btn btn-link p-0 auth-modal__switch mb-3";
+  resetLink.type = "button";
+  resetLink.textContent = "Forgot password?";
+
   const submitButton = createSubmitButton("Log in");
-  form.append(emailWrapper, passwordWrapper, rememberWrapper, submitButton);
-  content.append(status, form, createPageLink("Create an account", "/register/", "New here?"));
+  form.append(
+    emailWrapper,
+    passwordWrapper,
+    rememberWrapper,
+    resetLink,
+    submitButton,
+  );
+  const accountLink = createPageLink(
+    "Create an account",
+    "/register/",
+    "New here?",
+  );
+  content.append(status, form, accountLink);
+
+  const resetForm = document.createElement("form");
+  resetForm.className = "auth-form auth-modal__form";
+  resetForm.noValidate = true;
+  const { wrapper: resetEmailWrapper, input: resetEmailInput } = createField({
+    id: "reset-email",
+    label: "Email address",
+    type: "email",
+    autocomplete: "email",
+    maxLength: 254,
+  });
+  const resetSubmit = createSubmitButton("Send reset link");
+  const backToLogin = document.createElement("button");
+  backToLogin.className = "btn btn-link p-0 auth-modal__switch";
+  backToLogin.type = "button";
+  backToLogin.textContent = "Back to log in";
+  resetForm.append(resetEmailWrapper, resetSubmit, backToLogin);
+
+  resetLink.addEventListener("click", () => {
+    resetEmailInput.value = emailInput.value;
+    clearStatusMessage(status);
+    form.replaceWith(resetForm);
+    accountLink.hidden = true;
+    resetEmailInput.focus();
+  });
+
+  backToLogin.addEventListener("click", () => {
+    clearStatusMessage(status);
+    resetForm.replaceWith(form);
+    accountLink.hidden = false;
+    emailInput.focus();
+  });
+
+  resetForm.addEventListener("input", () => clearStatusMessage(status));
+  resetForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (resetSubmit.disabled) {
+      return;
+    }
+    clearStatusMessage(status);
+    if (!validateForm(resetForm)) {
+      return;
+    }
+
+    setSubmitPending(resetSubmit, true, "Send reset link");
+    try {
+      await requestPasswordReset(resetEmailInput.value);
+      resetForm.reset();
+      setStatusMessage(
+        status,
+        "If an account matches that email, a password reset link will be sent.",
+        "success",
+      );
+    } catch (error) {
+      setStatusMessage(status, error.message);
+    } finally {
+      setSubmitPending(resetSubmit, false, "Send reset link");
+    }
+  });
 
   form.addEventListener("input", () => clearStatusMessage(status));
   form.addEventListener("submit", async (event) => {

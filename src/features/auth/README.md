@@ -2,7 +2,7 @@
 
 The login, registration, and account entry modules under `src/pages/` compose the forms and profile view in this feature. Auth API calls are centralized in `src/services/auth-service.js`; profile reads and updates use `src/services/profile-service.js`; `src/utils/auth-guard.js` protects guest-only and authenticated routes.
 
-The shared public header opens reusable login and registration modals; the standalone login and registration routes remain available. The login modal also sends password recovery email to `/reset-password/`, where a valid recovery session can choose a new password.
+The public header's Login and Register links open their dedicated `/login/` and `/register/` pages. Both pages use the same premium hotel-lounge presentation as the previous authentication modals. The login page can send password recovery email to `/reset-password/`, where a valid recovery session can choose a new password.
 
 Copy the project-root `.env.example` to the project-root `.env` (beside `package.json`) and replace its example values with your Supabase project URL and publishable key from the project's API settings. For a legacy anon key, comment out `VITE_SUPABASE_PUBLISHABLE_KEY` and set `VITE_SUPABASE_ANON_KEY` instead. A publishable/anon key is intended for browser use; never use a service-role or secret key in a `VITE_` variable. Restart Vite after changing `.env`.
 

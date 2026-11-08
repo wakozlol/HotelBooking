@@ -4,7 +4,6 @@ import {
   subscribeToAuthChanges,
 } from "../../services/auth-service.js";
 import { isSupabaseConfigured } from "../../services/supabase.js";
-import { createAuthModal } from "../AuthModal/AuthModal.js";
 
 const navigationItems = [
   { label: "Hotels", href: "/hotels/" },
@@ -98,18 +97,6 @@ export function createHeader() {
   authStatus.className = "visually-hidden";
   authStatus.setAttribute("role", "status");
   authStatus.setAttribute("aria-live", "polite");
-
-  const authModal = createAuthModal();
-  document.body.append(authModal.element);
-
-  login.addEventListener("click", (event) => {
-    event.preventDefault();
-    authModal.open("login");
-  });
-  register.addEventListener("click", (event) => {
-    event.preventDefault();
-    authModal.open("register");
-  });
 
   function createAccountMenu(user) {
     const dropdown = document.createElement("div");

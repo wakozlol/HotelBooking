@@ -27,7 +27,7 @@ export function renderRegistrationPage() {
   addConfigurationNotice(status);
 
   const form = document.createElement("form");
-  form.className = "auth-form";
+  form.className = "auth-form auth-modal__form";
   form.noValidate = true;
 
   const { wrapper: firstNameWrapper, input: firstNameInput } = createField({
