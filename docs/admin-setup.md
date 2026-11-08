@@ -1,6 +1,6 @@
 # Hotel card administration setup
 
-The homepage and hotel listings use rows from `public.hotels` when Supabase is configured. Admin-only card actions are visible only to signed-in users with an `admin` row in `public.user_roles`. Row Level Security and Storage policies enforce that role; hiding the buttons is not the authorization boundary.
+The homepage and hotel listings use rows from `public.hotels` when Supabase is configured. The admin dashboard and hotel catalog support creating and editing hotel profiles, deleting hotels, and uploading replacement images. Admin-only actions are visible only to signed-in users with an `admin` row in `public.user_roles`. Row Level Security and Storage policies enforce that role; hiding the buttons is not the authorization boundary. Room and reservation management remain deferred until their schemas and workflows are implemented.
 
 ## Initial administrator
 
@@ -37,6 +37,6 @@ end
 $grant_hotel_admin$;
 ```
 
-Sign out and back in, then open the homepage. The card actions will be available after the app verifies the role. Guests and anonymous visitors can only read published hotels. Only admins can edit or delete hotel records and upload images.
+Sign out and back in, then open the admin dashboard. The hotel catalog tools will be available after the app verifies the role. Guests and anonymous visitors can only read published hotels. Only admins can create, edit, or delete hotel records and upload images.
 
 Uploaded images are limited to JPEG, PNG, and WebP files up to 5 MB in the public `hotel-images` bucket. Hotel descriptions, prices, and availability remain illustrative and are not bookable inventory.

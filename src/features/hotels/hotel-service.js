@@ -134,6 +134,46 @@ export async function updateHotel(hotelId, hotel) {
   }
 }
 
+export async function createHotel(hotel) {
+  const update = validateHotelUpdate(hotel);
+  let imageUrl;
+  try {
+    imageUrl = new URL(hotel.imageUrl.trim());
+  } catch {
+    throw new HotelServiceError("Enter a valid HTTPS image URL.");
+  }
+  if (imageUrl.protocol !== "https:") {
+    throw new HotelServiceError("The hotel image URL must use HTTPS.");
+  }
+
+  const slug = update.name
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 68);
+  if (!slug) {
+    throw new HotelServiceError("The hotel name must contain letters or numbers.");
+  }
+
+  const { data, error } = await getSupabaseClient()
+    .from("hotels")
+    .insert({
+      id: `${slug}-${crypto.randomUUID().slice(0, 8)}`,
+      ...update,
+      image_url: imageUrl.href,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new HotelServiceError(
+      "The hotel could not be created. Check your administrator access and try again.",
+    );
+  }
+}
+
 async function removeStoredImage(path, failureMessage) {
   const { error } = await getSupabaseClient()
     .storage

@@ -1,5 +1,6 @@
 import { Modal } from "bootstrap";
 import {
+  createHotel,
   deleteHotel,
   updateHotel,
   uploadHotelImage,
@@ -118,6 +119,13 @@ export function createHotelEditModal(onSaved) {
     min: 0,
     step: "0.01",
   });
+  const imageUrl = createField({
+    id: "hotel-admin-image-url",
+    label: "Hotel image URL (HTTPS)",
+    type: "url",
+    maxLength: 2048,
+  });
+  imageUrl.input.placeholder = "https://example.com/hotel-photo.jpg";
   const styleWrapper = document.createElement("div");
   styleWrapper.className = "mb-3";
   const styleLabel = document.createElement("label");
@@ -144,6 +152,7 @@ export function createHotelEditModal(onSaved) {
     description.wrapper,
     rate.wrapper,
     styleWrapper,
+    imageUrl.wrapper,
   );
 
   const footer = document.createElement("div");
@@ -170,7 +179,7 @@ export function createHotelEditModal(onSaved) {
     keyboard: true,
     focus: true,
   });
-  let activeHotel;
+  let activeHotel = null;
 
   function showStatus(message) {
     status.className = "alert alert-danger";
@@ -186,7 +195,7 @@ export function createHotelEditModal(onSaved) {
     event.preventDefault();
     clearStatus();
     form.classList.add("was-validated");
-    if (!form.reportValidity() || save.disabled || !activeHotel) {
+    if (!form.reportValidity() || save.disabled) {
       return;
     }
 
@@ -194,21 +203,29 @@ export function createHotelEditModal(onSaved) {
     save.setAttribute("aria-busy", "true");
     save.textContent = "Saving...";
     try {
-      await updateHotel(activeHotel.id, {
+      const hotel = {
         name: name.input.value,
         location: location.input.value,
         description: description.input.value,
         nightlyRate: rate.input.value,
         style: style.value,
-      });
+        imageUrl: imageUrl.input.value,
+      };
+      if (activeHotel) {
+        await updateHotel(activeHotel.id, hotel);
+      } else {
+        await createHotel(hotel);
+      }
       modal.hide();
-      await onSaved("Hotel changes saved.");
+      await onSaved(
+        activeHotel ? "Hotel changes saved." : "Hotel created successfully.",
+      );
     } catch (error) {
       showStatus(error.message);
     } finally {
       save.disabled = false;
       save.removeAttribute("aria-busy");
-      save.textContent = "Save changes";
+      save.textContent = activeHotel ? "Save changes" : "Create hotel";
     }
   });
 
@@ -217,11 +234,17 @@ export function createHotelEditModal(onSaved) {
       activeHotel = hotel;
       clearStatus();
       form.classList.remove("was-validated");
-      name.input.value = hotel.name;
-      location.input.value = hotel.location.replace(/^Sample stay\s*[·-]\s*/, "");
-      description.input.value = hotel.description;
-      rate.input.value = String(hotel.nightlyRate);
-      style.value = hotel.style;
+      title.textContent = hotel ? "Edit hotel" : "Add a hotel";
+      save.textContent = hotel ? "Save changes" : "Create hotel";
+      imageUrl.wrapper.hidden = Boolean(hotel);
+      imageUrl.input.required = !hotel;
+      name.input.value = hotel?.name ?? "";
+      location.input.value =
+        hotel?.location.replace(/^Sample stay\s*[·-]\s*/, "") ?? "";
+      description.input.value = hotel?.description ?? "";
+      rate.input.value = hotel ? String(hotel.nightlyRate) : "";
+      style.value = hotel?.style ?? hotelStyles[0][0];
+      imageUrl.input.value = "";
       modal.show();
     },
   };

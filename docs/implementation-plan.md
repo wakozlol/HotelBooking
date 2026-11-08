@@ -80,7 +80,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Enforce admin-only operations through database policies and Supabase Storage policies; safely render user-managed text and images.
 - **Acceptance:** authorized administrators can manage in-scope records, guests cannot perform admin operations, and image access follows the intended policy.
 - **Fast-track decision:** the owner approved hotel-card edit, delete, and image upload controls on the homepage and hotel listings. Room, reservation, and other administrative workflows remain deferred.
-- **Status:** The initial administrator account is registered in the connected Supabase project. Admin routes require authentication and a database-verified admin role; hotel/storage policies remain the authorization boundary for data operations. Room and reservation administration remain deferred.
+- **Status:** The initial administrator account is registered in the connected Supabase project. The styled, responsive admin dashboard and Supabase-backed hotel create/edit/delete/image workflows are available to verified admins; database and storage policies remain the authorization boundary. Room and reservation administration remain deferred.
 
 ### 8. Production deployment and release checks
 

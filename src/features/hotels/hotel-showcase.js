@@ -336,12 +336,24 @@ function createHotelGrid() {
   const detailsModal = createHotelDetailsModal();
   let editModal;
 
+  let refreshGrid = () => {};
+
+  function ensureEditModal() {
+    if (!editModal) {
+      editModal = createHotelEditModal((...args) => refreshGrid(...args));
+    }
+  }
+
   return {
     element: grid,
+    setRefresh(refresh) {
+      refreshGrid = refresh;
+    },
     render(hotels, isAdmin, refresh) {
       grid.replaceChildren();
-      if (isAdmin && !editModal) {
-        editModal = createHotelEditModal(refresh);
+      refreshGrid = refresh;
+      if (isAdmin) {
+        ensureEditModal();
       }
 
       for (const hotel of hotels) {
@@ -353,6 +365,10 @@ function createHotelGrid() {
         column.append(createHotelCard(hotel, detailsModal.open, actions));
         grid.append(column);
       }
+    },
+    openCreate() {
+      ensureEditModal();
+      editModal.open(null);
     },
   };
 }
@@ -367,21 +383,39 @@ function setHotelGridStatus(status, message = "", type = "info") {
   status.textContent = message;
 }
 
-async function loadHotelGrid(grid, status, message = "", messageType = "success") {
+async function loadHotelGrid(
+  grid,
+  status,
+  message = "",
+  messageType = "success",
+  allowSampleFallback = true,
+) {
+  const refresh = (nextMessage, nextMessageType = "success") =>
+    loadHotelGrid(
+      grid,
+      status,
+      nextMessage,
+      nextMessageType,
+      allowSampleFallback,
+    );
   if (!isSupabaseConfigured()) {
-    grid.render(sampleHotels, false, () => {});
-    setHotelGridStatus(status);
+    grid.render(allowSampleFallback ? sampleHotels : [], false, refresh);
+    setHotelGridStatus(
+      status,
+      allowSampleFallback
+        ? ""
+        : "Supabase configuration is required to manage hotel listings.",
+      allowSampleFallback ? "info" : "danger",
+    );
     return false;
   }
 
   setHotelGridStatus(status, "Loading hotel cards...");
-  grid.render([], false, () => {});
+  grid.render([], false, refresh);
   try {
     const user = await getAuthenticatedUser();
     const isAdmin = user ? await getHotelAdminRole(user.id) : false;
     const hotels = await getHotelListings();
-    const refresh = (nextMessage, nextMessageType = "success") =>
-      loadHotelGrid(grid, status, nextMessage, nextMessageType);
     grid.render(hotels, isAdmin, refresh);
     if (message) {
       setHotelGridStatus(status, message, messageType);
@@ -397,7 +431,7 @@ async function loadHotelGrid(grid, status, message = "", messageType = "success"
     }
     return true;
   } catch (error) {
-    grid.render([], false, () => {});
+    grid.render([], false, refresh);
     setHotelGridStatus(status, error.message, "danger");
     return false;
   }
@@ -538,6 +572,9 @@ export function createHomeHotelShowcase({ title, description, links = [] }) {
   status.setAttribute("role", "status");
   status.setAttribute("aria-live", "polite");
   const grid = createHotelGrid();
+  grid.setRefresh((message, type = "success") =>
+    loadHotelGrid(grid, status, message, type, false),
+  );
   stays.append(staysHeading, status, grid.element);
 
   main.append(introduction, stays);
@@ -565,5 +602,42 @@ export function createHotelListingsPage({ title, description }) {
   const grid = createHotelGrid();
   main.append(heading, summary, createSampleNotice(), status, grid.element);
   void loadHotelGrid(grid, status);
+  return main;
+}
+
+export function createAdminHotelManagementPage() {
+  const main = document.createElement("main");
+  main.id = "main-content";
+  main.className = "container admin-hotel-page";
+
+  const heading = document.createElement("div");
+  heading.className = "admin-hotel-page__heading";
+  const copy = document.createElement("div");
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "admin-eyebrow";
+  eyebrow.textContent = "PROPERTY CATALOG";
+  const title = document.createElement("h1");
+  title.textContent = "Manage hotels";
+  const description = document.createElement("p");
+  description.className = "text-body-secondary";
+  description.textContent =
+    "Create hotel profiles, update property details, and refresh listing images.";
+  copy.append(eyebrow, title, description);
+
+  const status = document.createElement("div");
+  status.className = "hotel-grid-status d-none";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+
+  const grid = createHotelGrid();
+  const addHotel = document.createElement("button");
+  addHotel.className = "btn btn-warning admin-add-hotel";
+  addHotel.type = "button";
+  addHotel.textContent = "Add hotel";
+  addHotel.addEventListener("click", () => grid.openCreate());
+  heading.append(copy, addHotel);
+
+  main.append(heading, status, grid.element);
+  void loadHotelGrid(grid, status, "", "success", false);
   return main;
 }

@@ -25,6 +25,7 @@ export function renderPage({
   layout = "main",
   hero = false,
   hotelListings = false,
+  content,
 }) {
   const app = document.querySelector("#app");
   if (!app) {
@@ -38,7 +39,7 @@ export function renderPage({
 
   document.title = `${title} | Hotel Booking`;
   app.replaceChildren(
-    createLayout({ title, description, links, hero, hotelListings }),
+    createLayout({ title, description, links, hero, hotelListings, content }),
   );
 }
 
