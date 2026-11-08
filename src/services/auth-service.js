@@ -186,7 +186,16 @@ export async function getAuthenticatedUser() {
   let result;
 
   try {
-    result = await getSupabaseClient().auth.getUser();
+    const auth = getSupabaseClient().auth;
+    const { data: sessionData, error: sessionError } = await auth.getSession();
+    if (sessionError) {
+      throw sessionError;
+    }
+    if (!sessionData.session) {
+      return null;
+    }
+
+    result = await auth.getUser();
   } catch (error) {
     if (error instanceof SupabaseConfigurationError) {
       throw error;
