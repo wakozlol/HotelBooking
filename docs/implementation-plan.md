@@ -66,6 +66,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - **Acceptance:** search results match database availability for the selected criteria; forms and results are keyboard-accessible and responsive.
 - **Fast-track decision:** the owner approved an illustrative, sample-only hotel showcase before the hotel schema milestone is complete. The homepage carousel and hotel cards are clearly labeled as samples and do not claim live inventory or availability. Replace the sample data with Supabase-backed listings after the data model and policies are implemented.
 - **Status:** Hotel cards load published rows from Supabase when configured, with the illustrative sample fallback retained when configuration is absent. Availability search and live inventory remain deferred.
+- **Fast-track decision:** the owner approved a preview-only date and guest selector in the hotel details popup. It does not check availability or create reservations.
 
 ### 6. Reservations, booking history, and cancellation
 

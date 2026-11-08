@@ -554,6 +554,33 @@
   font-size: 0.82rem;
 }
 
+.hotel-stay-preview {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #dfe9df;
+  border-radius: 0.75rem;
+  background: #f4f7f1;
+}
+
+.hotel-stay-preview .hotel-details__heading {
+  margin-top: 0;
+}
+
+.hotel-stay-preview .hotel-details__notice {
+  margin: 0 0 1rem;
+}
+
+.hotel-stay-preview__fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hotel-stay-preview__summary {
+  margin: 1rem 0 0;
+  color: #36534a;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 575.98px) {
   .hotel-feature {
     min-height: 34rem;

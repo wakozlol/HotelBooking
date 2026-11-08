@@ -1,6 +1,7 @@
 import { Modal } from "bootstrap";
 import { getAuthenticatedUser } from "../../services/auth-service.js";
 import { isSupabaseConfigured } from "../../services/supabase.js";
+import { createStayPreview } from "../bookings/stay-preview.js";
 import { createHotelAdminActions, createHotelEditModal } from "./hotel-admin.js";
 import {
   getHotelAdminRole,
@@ -126,7 +127,7 @@ function createHotelCard(hotel, showDetails, adminActions) {
   return card;
 }
 
-function createHotelDetailsBody(hotel) {
+function createHotelDetailsBody(hotel, stayPreview) {
   const body = document.createElement("div");
   body.className = "row g-4 hotel-details";
 
@@ -269,6 +270,7 @@ function createHotelDetailsBody(hotel) {
     bookingHeading,
     bookingDetails,
     availabilityNotice,
+    stayPreview.element,
   );
   body.append(galleryColumn, detailsColumn);
   return body;
@@ -300,7 +302,16 @@ function createHotelDetailsModal() {
 
   const body = document.createElement("div");
   body.className = "modal-body";
-  content.append(header, body);
+  const footer = document.createElement("div");
+  footer.className = "modal-footer";
+  const book = document.createElement("button");
+  book.className = "btn btn-success";
+  book.type = "button";
+  book.textContent = "Book";
+  book.setAttribute("aria-expanded", "false");
+  book.setAttribute("aria-controls", "hotel-stay-preview");
+  footer.append(book);
+  content.append(header, body, footer);
   dialog.append(content);
   element.append(dialog);
   document.body.append(element);
@@ -311,11 +322,20 @@ function createHotelDetailsModal() {
     focus: true,
   });
 
+  let stayPreview;
+  book.addEventListener("click", () => {
+    stayPreview.show();
+    book.setAttribute("aria-expanded", "true");
+  });
+
   return {
     element,
     open(hotel) {
       title.textContent = hotel.name;
-      body.replaceChildren(createHotelDetailsBody(hotel));
+      stayPreview = createStayPreview();
+      stayPreview.element.id = "hotel-stay-preview";
+      book.setAttribute("aria-expanded", "false");
+      body.replaceChildren(createHotelDetailsBody(hotel, stayPreview));
       modal.show();
     },
   };
