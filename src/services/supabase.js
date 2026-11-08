@@ -46,10 +46,15 @@ function getConfiguration() {
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ||
     import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-  if (!url || !key) {
+  const isExampleValue =
+    url === "https://your-project-ref.supabase.co" ||
+    key === "your-supabase-publishable-key" ||
+    key === "your-supabase-anon-key";
+
+  if (!url || !key || isExampleValue) {
     return {
       error:
-        "Supabase is not configured. Copy .env.example to .env, add your project URL and publishable key, then restart Vite.",
+        "Supabase is not configured yet. In the project-root .env file, set VITE_SUPABASE_URL and either VITE_SUPABASE_PUBLISHABLE_KEY or VITE_SUPABASE_ANON_KEY to your own project values, then restart Vite.",
     };
   }
 
