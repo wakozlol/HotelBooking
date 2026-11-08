@@ -2,8 +2,34 @@ import { sampleHotels } from "./sample-hotels.js";
 
 function createHotelArtwork(hotel, extraClass = "") {
   const artwork = document.createElement("div");
-  artwork.className = `hotel-art hotel-art--${hotel.style} ${extraClass}`.trim();
-  artwork.setAttribute("aria-hidden", "true");
+  artwork.className =
+    `hotel-art hotel-art--${hotel.style} hotel-art--photo ${extraClass}`.trim();
+
+  const image = document.createElement("img");
+  image.className = "hotel-art__image";
+  image.src = hotel.imageUrl;
+  image.alt = "";
+  image.loading = "lazy";
+  image.decoding = "async";
+  image.setAttribute("aria-hidden", "true");
+
+  const attribution = document.createElement("span");
+  attribution.className = "hotel-art__attribution";
+
+  const photographer = document.createElement("a");
+  photographer.href = hotel.photoSource;
+  photographer.target = "_blank";
+  photographer.rel = "noopener noreferrer";
+  photographer.textContent = `Photo: ${hotel.photoCredit}`;
+
+  const license = document.createElement("a");
+  license.href = hotel.photoLicenseUrl;
+  license.target = "_blank";
+  license.rel = "noopener noreferrer";
+  license.textContent = hotel.photoLicense;
+
+  attribution.append(photographer, document.createTextNode(" · "), license);
+  artwork.append(image, attribution);
   return artwork;
 }
 
