@@ -50,6 +50,8 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Provide a database-enforced atomic reservation operation that assigns at most one available physical room and prevents overlapping active reservations.
 - Document a migration workflow that checks remote history before applying changes.
 - **Acceptance:** migrations apply in a clean local or test database; authorization, reservation integrity, and concurrent booking tests reject unauthorized access and double-booking. Apply remotely only when real credentials and migration history are available and verified.
+- **Fast-track decision:** the owner approved the hotel-card administration slice of this milestone. The committed card-management migration creates `hotels` and non-self-assignable `user_roles` tables, row-level authorization, upload policies, and illustrative card records. Room types, physical rooms, reservations, and atomic booking remain deferred to their planned milestones.
+- **Status:** The hotel-card migration is authored but not yet applied. Remote migration history and the `public` schema were verified empty. The requested Auth user was not present in the connected project, so its admin role is intentionally not granted; see [admin-setup.md](./admin-setup.md). The existing guest-profile migration must be applied first.
 
 ### 4. Shared UI and Supabase client services
 
@@ -63,6 +65,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Show availability and prices in EUR without suggesting payment is collected online.
 - **Acceptance:** search results match database availability for the selected criteria; forms and results are keyboard-accessible and responsive.
 - **Fast-track decision:** the owner approved an illustrative, sample-only hotel showcase before the hotel schema milestone is complete. The homepage carousel and hotel cards are clearly labeled as samples and do not claim live inventory or availability. Replace the sample data with Supabase-backed listings after the data model and policies are implemented.
+- **Status:** Hotel cards load published rows from Supabase when configured, with the illustrative sample fallback retained when configuration is absent. Availability search and live inventory remain deferred.
 
 ### 6. Reservations, booking history, and cancellation
 
@@ -76,6 +79,8 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Implement authorized admin workflows for hotels, room types, physical rooms, image uploads, and reservations.
 - Enforce admin-only operations through database policies and Supabase Storage policies; safely render user-managed text and images.
 - **Acceptance:** authorized administrators can manage in-scope records, guests cannot perform admin operations, and image access follows the intended policy.
+- **Fast-track decision:** the owner approved hotel-card edit, delete, and image upload controls on the homepage and hotel listings. Room, reservation, and other administrative workflows remain deferred.
+- **Status:** Frontend controls and the server-enforced hotel/storage policies are implemented. The migration is not yet applied, and the initial admin account is pending registration in the connected Supabase project and a protected role grant.
 
 ### 8. Production deployment and release checks
 

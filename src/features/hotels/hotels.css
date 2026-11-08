@@ -114,6 +114,37 @@
   padding-bottom: clamp(3rem, 7vw, 6rem);
 }
 
+.hotel-grid-status {
+  margin-bottom: 1.5rem;
+}
+
+.hotel-card__admin {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e3e8e2;
+}
+
+.hotel-card__admin .btn {
+  min-width: 0;
+  padding-inline: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.hotel-card__admin-status {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.hotel-admin-modal .modal-content {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 1.5rem 5rem rgb(13 35 38 / 24%);
+}
+
 .hotel-home__stays h2,
 .hotel-listings h1 {
   color: #173c3b;

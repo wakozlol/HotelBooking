@@ -17,7 +17,7 @@ const redirectStorageKey = "hotel-booking:redirect-after-login";
 export function takePostLoginRoute() {
   const route = window.sessionStorage.getItem(redirectStorageKey);
   window.sessionStorage.removeItem(redirectStorageKey);
-  return protectedRoutes.has(route) ? route : "/account/";
+  return protectedRoutes.has(route) ? route : "/";
 }
 
 export async function requireAuthenticatedUser() {

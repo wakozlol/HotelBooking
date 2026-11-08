@@ -1,4 +1,11 @@
 import { Modal } from "bootstrap";
+import { getAuthenticatedUser } from "../../services/auth-service.js";
+import { isSupabaseConfigured } from "../../services/supabase.js";
+import { createHotelAdminActions, createHotelEditModal } from "./hotel-admin.js";
+import {
+  getHotelAdminRole,
+  getHotelListings,
+} from "./hotel-service.js";
 import { sampleHotelGalleryByStyle, sampleHotels } from "./sample-hotels.js";
 
 const euroFormatter = new Intl.NumberFormat("en-IE", {
@@ -20,32 +27,44 @@ function createHotelArtwork(hotel, extraClass = "") {
   image.decoding = "async";
   image.setAttribute("aria-hidden", "true");
 
-  const attribution = document.createElement("span");
-  attribution.className = "hotel-art__attribution";
+  artwork.append(image);
+  if (
+    hotel.photoCredit &&
+    hotel.photoSource &&
+    hotel.photoLicense &&
+    hotel.photoLicenseUrl
+  ) {
+    const attribution = document.createElement("span");
+    attribution.className = "hotel-art__attribution";
 
-  const photographer = document.createElement("a");
-  photographer.href = hotel.photoSource;
-  photographer.target = "_blank";
-  photographer.rel = "noopener noreferrer";
-  photographer.textContent = `Photo: ${hotel.photoCredit}`;
+    const photographer = document.createElement("a");
+    photographer.href = hotel.photoSource;
+    photographer.target = "_blank";
+    photographer.rel = "noopener noreferrer";
+    photographer.textContent = `Photo: ${hotel.photoCredit}`;
 
-  const license = document.createElement("a");
-  license.href = hotel.photoLicenseUrl;
-  license.target = "_blank";
-  license.rel = "noopener noreferrer";
-  license.textContent = hotel.photoLicense;
+    const license = document.createElement("a");
+    license.href = hotel.photoLicenseUrl;
+    license.target = "_blank";
+    license.rel = "noopener noreferrer";
+    license.textContent = hotel.photoLicense;
 
-  attribution.append(photographer, document.createTextNode(" · "), license);
-  artwork.append(image, attribution);
+    attribution.append(photographer, document.createTextNode(" · "), license);
+    artwork.append(attribution);
+  }
   return artwork;
 }
 
-function createHotelCard(hotel, showDetails) {
+function formatHotelLocation(location) {
+  return location.replace(/^Sample stay\s*[·-]\s*/, "");
+}
+
+function createHotelCard(hotel, showDetails, adminActions) {
   const card = document.createElement("article");
   card.className = "hotel-card h-100";
 
   card.addEventListener("click", (event) => {
-    if (event.target.closest(".hotel-art__attribution a")) {
+    if (event.target.closest("button, a")) {
       return;
     }
     showDetails(hotel);
@@ -58,7 +77,7 @@ function createHotelCard(hotel, showDetails) {
 
   const location = document.createElement("p");
   location.className = "hotel-card__location";
-  location.textContent = hotel.location.replace("Sample stay · ", "");
+  location.textContent = formatHotelLocation(hotel.location);
 
   const title = document.createElement("h3");
   title.className = "hotel-card__title";
@@ -96,9 +115,13 @@ function createHotelCard(hotel, showDetails) {
   viewDetails.type = "button";
   viewDetails.textContent = "View Details";
   viewDetails.setAttribute("aria-label", `View details for ${hotel.name}`);
+  viewDetails.addEventListener("click", () => showDetails(hotel));
 
   footer.append(rate, viewDetails);
   body.append(location, title, description, highlights, footer);
+  if (adminActions) {
+    body.append(adminActions);
+  }
   card.append(artwork, body);
   return card;
 }
@@ -121,17 +144,26 @@ function createHotelDetailsBody(hotel) {
 
   const galleryCredit = document.createElement("p");
   galleryCredit.className = "hotel-details__photo-credit";
-  const creditLink = document.createElement("a");
-  creditLink.href = hotel.photoSource;
-  creditLink.target = "_blank";
-  creditLink.rel = "noopener noreferrer";
-  creditLink.textContent = `Cover photo: ${hotel.photoCredit}`;
-  const licenseLink = document.createElement("a");
-  licenseLink.href = hotel.photoLicenseUrl;
-  licenseLink.target = "_blank";
-  licenseLink.rel = "noopener noreferrer";
-  licenseLink.textContent = hotel.photoLicense;
-  galleryCredit.append(creditLink, document.createTextNode(" · "), licenseLink);
+  if (
+    hotel.photoCredit &&
+    hotel.photoSource &&
+    hotel.photoLicense &&
+    hotel.photoLicenseUrl
+  ) {
+    const creditLink = document.createElement("a");
+    creditLink.href = hotel.photoSource;
+    creditLink.target = "_blank";
+    creditLink.rel = "noopener noreferrer";
+    creditLink.textContent = `Cover photo: ${hotel.photoCredit}`;
+    const licenseLink = document.createElement("a");
+    licenseLink.href = hotel.photoLicenseUrl;
+    licenseLink.target = "_blank";
+    licenseLink.rel = "noopener noreferrer";
+    licenseLink.textContent = hotel.photoLicense;
+    galleryCredit.append(creditLink, document.createTextNode(" · "), licenseLink);
+  } else {
+    galleryCredit.textContent = "Image provided by the hotel team.";
+  }
   const unsplashCredit = document.createElement("a");
   unsplashCredit.href = "https://unsplash.com";
   unsplashCredit.target = "_blank";
@@ -175,7 +207,7 @@ function createHotelDetailsBody(hotel) {
   detailsColumn.className = "col-lg-5";
   const location = document.createElement("p");
   location.className = "hotel-card__location";
-  location.textContent = hotel.location.replace("Sample stay · ", "");
+  location.textContent = formatHotelLocation(hotel.location);
 
   const description = document.createElement("p");
   description.className = "hotel-details__description";
@@ -302,13 +334,73 @@ function createHotelGrid() {
   const grid = document.createElement("div");
   grid.className = "row g-4";
   const detailsModal = createHotelDetailsModal();
-  for (const hotel of sampleHotels) {
-    const column = document.createElement("div");
-    column.className = "col-md-6 col-xl-3";
-    column.append(createHotelCard(hotel, detailsModal.open));
-    grid.append(column);
+  let editModal;
+
+  return {
+    element: grid,
+    render(hotels, isAdmin, refresh) {
+      grid.replaceChildren();
+      if (isAdmin && !editModal) {
+        editModal = createHotelEditModal(refresh);
+      }
+
+      for (const hotel of hotels) {
+        const column = document.createElement("div");
+        column.className = "col-md-6 col-xl-3";
+        const actions = isAdmin
+          ? createHotelAdminActions(hotel, { editModal, refresh })
+          : null;
+        column.append(createHotelCard(hotel, detailsModal.open, actions));
+        grid.append(column);
+      }
+    },
+  };
+}
+
+function setHotelGridStatus(status, message = "", type = "info") {
+  if (!message) {
+    status.className = "hotel-grid-status d-none";
+    status.textContent = "";
+    return;
   }
-  return grid;
+  status.className = `alert alert-${type} hotel-grid-status`;
+  status.textContent = message;
+}
+
+async function loadHotelGrid(grid, status, message = "", messageType = "success") {
+  if (!isSupabaseConfigured()) {
+    grid.render(sampleHotels, false, () => {});
+    setHotelGridStatus(status);
+    return false;
+  }
+
+  setHotelGridStatus(status, "Loading hotel cards...");
+  grid.render([], false, () => {});
+  try {
+    const user = await getAuthenticatedUser();
+    const isAdmin = user ? await getHotelAdminRole(user.id) : false;
+    const hotels = await getHotelListings();
+    const refresh = (nextMessage, nextMessageType = "success") =>
+      loadHotelGrid(grid, status, nextMessage, nextMessageType);
+    grid.render(hotels, isAdmin, refresh);
+    if (message) {
+      setHotelGridStatus(status, message, messageType);
+    } else if (isAdmin) {
+      setHotelGridStatus(
+        status,
+        "Administrator actions are available on each hotel card.",
+      );
+    } else if (hotels.length === 0) {
+      setHotelGridStatus(status, "No published hotels are available yet.");
+    } else {
+      setHotelGridStatus(status);
+    }
+    return true;
+  } catch (error) {
+    grid.render([], false, () => {});
+    setHotelGridStatus(status, error.message, "danger");
+    return false;
+  }
 }
 
 function createCarouselSlide(hotel, index) {
@@ -441,9 +533,15 @@ export function createHomeHotelShowcase({ title, description, links = [] }) {
   const staysHeading = document.createElement("h2");
   staysHeading.className = "h3 mb-4";
   staysHeading.textContent = "Sample stays to inspire your next trip";
-  stays.append(staysHeading, createHotelGrid());
+  const status = document.createElement("div");
+  status.className = "hotel-grid-status d-none";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+  const grid = createHotelGrid();
+  stays.append(staysHeading, status, grid.element);
 
   main.append(introduction, stays);
+  void loadHotelGrid(grid, status);
   return main;
 }
 
@@ -460,6 +558,12 @@ export function createHotelListingsPage({ title, description }) {
   summary.className = "lead text-body-secondary mt-3";
   summary.textContent = description;
 
-  main.append(heading, summary, createSampleNotice(), createHotelGrid());
+  const status = document.createElement("div");
+  status.className = "hotel-grid-status d-none";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+  const grid = createHotelGrid();
+  main.append(heading, summary, createSampleNotice(), status, grid.element);
+  void loadHotelGrid(grid, status);
   return main;
 }
