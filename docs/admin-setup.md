@@ -11,9 +11,17 @@ Apply the committed migrations in timestamp order:
 1. `20261108161827_create_guest_profiles.sql`
 2. `20261108161856_create_admin_hotel_cards.sql`
 3. `20261108162005_set_hotel_admin_check_invoker.sql`
-4. `20261108203400_create_room_reservations.sql`
+4. `20261108183516_create_room_reservations.sql`
 
 The `set_hotel_admin_check_invoker` migration was renamed to match the verified remote version and SQL; it was not reapplied.
+
+The room and reservation migration has been applied to the connected project. It
+creates empty `rooms` and `reservations` tables, restricts guest reservations
+to their owner and admins, and requires authenticated bookings to use `book_room`.
+The function checks room capacity and the expected EUR rate, and the database
+rejects overlapping confirmed stays. Room records must contain real inventory
+and prices; the illustrative hotel rates are not used. Room management, room
+selection, booking UI, and cancellation are not implemented yet.
 
 To grant the role to another account, first register it through the site's registration page and complete any required email confirmation. Then run this statement in the Supabase SQL Editor while signed in as a project administrator, replacing the email with the registered account:
 

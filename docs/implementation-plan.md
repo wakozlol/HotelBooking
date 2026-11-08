@@ -51,7 +51,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Document a migration workflow that checks remote history before applying changes.
 - **Acceptance:** migrations apply in a clean local or test database; authorization, reservation integrity, and concurrent booking tests reject unauthorized access and double-booking. Apply remotely only when real credentials and migration history are available and verified.
 - **Fast-track decision:** the owner approved the hotel-card administration slice of this milestone. The committed card-management migration creates `hotels` and non-self-assignable `user_roles` tables, row-level authorization, upload policies, and illustrative card records. Room types, physical rooms, reservations, and atomic booking remain deferred to their planned milestones.
-- **Status:** The guest-profile and hotel-card migrations are applied to the verified project. The committed `set_hotel_admin_check_invoker` timestamp was reconciled with remote history after verifying its recorded SQL. A physical-room and reservation schema with an atomic booking operation is being added; room types and application booking workflows remain deferred.
+- **Status:** The guest-profile, hotel-card, and physical-room/reservation migrations are applied to the verified project. Migration timestamps match verified remote history. The `rooms` and `reservations` tables are empty; the atomic `book_room` operation and overlapping-stay constraint were tested locally. Room types and application booking workflows remain deferred.
 
 ### 4. Shared UI and Supabase client services
 
