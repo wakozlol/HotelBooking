@@ -10,7 +10,7 @@ Apply the committed migrations in timestamp order:
 
 1. `20261108161827_create_guest_profiles.sql`
 2. `20261108161856_create_admin_hotel_cards.sql`
-3. `20261108162005_set_hotel_admin_check_invoker.sql`
+3. `20261108181932_set_hotel_admin_check_invoker.sql`
 
 After the Auth user exists in the same Supabase project as the site, run this statement in the Supabase SQL Editor while signed in as a project administrator:
 
