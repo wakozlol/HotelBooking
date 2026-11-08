@@ -110,4 +110,20 @@ export const sampleHotels = [
       "https://commons.wikimedia.org/wiki/File:Lindner_Golf_%26_Wellness_Resort_Portals_Nous.jpg",
     highlights: ["Garden setting", "Wellness-inspired"],
   },
+  {
+    id: "maison-mezzara",
+    name: "Maison Mezzara",
+    location: "Sample stay \u00b7 Paris, France",
+    description:
+      "A Parisian city-stay concept inspired by expressive architecture and relaxed neighborhood walks.",
+    style: "garden",
+    imageUrl:
+      "https://euccwinysxbwtbjwykkc.supabase.co/storage/v1/object/public/hotel-images/paris-mezzara.jpg",
+    photoCredit: "Davitof",
+    photoLicense: "CC BY-SA 3.0",
+    photoLicenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+    photoSource:
+      "https://commons.wikimedia.org/wiki/File:Paris_-_Hotel_Mezzara_(2).jpg",
+    highlights: ["Parisian character", "Art nouveau inspired"],
+  },
 ];
