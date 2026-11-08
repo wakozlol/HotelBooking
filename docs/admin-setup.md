@@ -4,7 +4,7 @@ The homepage and hotel listings use rows from `public.hotels` when Supabase is c
 
 ## Initial administrator
 
-The connected `HotelReservations` project did not contain the requested Auth user when checked. Create the account through the site's registration page after the guest profile migration is installed, and complete any required email confirmation. Do not put the password in source code, SQL migrations, or this guide.
+The initial administrator Auth account has been created in the connected `HotelReservations` project and granted the `admin` role. Do not put its password in source code, SQL migrations, or this guide. Change the initial password before production use.
 
 Apply the committed migrations in timestamp order:
 
@@ -12,7 +12,9 @@ Apply the committed migrations in timestamp order:
 2. `20261108161856_create_admin_hotel_cards.sql`
 3. `20261108181932_set_hotel_admin_check_invoker.sql`
 
-After the Auth user exists in the same Supabase project as the site, run this statement in the Supabase SQL Editor while signed in as a project administrator:
+The remote migration history currently records `set_hotel_admin_check_invoker` with version `20261108162005`. Reconcile this timestamp difference before applying future migrations; do not reapply or reset the remote project to resolve it.
+
+To grant the role to another account, first register it through the site's registration page and complete any required email confirmation. Then run this statement in the Supabase SQL Editor while signed in as a project administrator, replacing the email with the registered account:
 
 ```sql
 do $grant_hotel_admin$
@@ -22,7 +24,7 @@ begin
   select id
   into target_user_id
   from auth.users
-  where lower(email) = lower('koceto@gmail.com');
+  where lower(email) = lower('admin@example.com');
 
   if target_user_id is null then
     raise exception 'The requested Auth user does not exist in this project';

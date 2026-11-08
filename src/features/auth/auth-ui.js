@@ -7,6 +7,7 @@ export function mountAuthPage({ title, description }) {
     throw new Error('Page is missing the required "#app" element.');
   }
 
+  document.title = `${title} | Hotel Booking`;
   app.replaceChildren(createAuthLayout({ title, description }));
   const content = app.querySelector("#main-content");
   if (!content) {

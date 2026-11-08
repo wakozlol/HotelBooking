@@ -1,9 +1,7 @@
 import { renderPage } from "../app/App.js";
-import {
-  getAuthenticatedUser,
-  subscribeToAuthChanges,
-} from "../services/auth-service.js";
+import { getAuthenticatedUser } from "../services/auth-service.js";
 import { isSupabaseConfigured } from "../services/supabase.js";
+import { getHotelAdminRole } from "../features/hotels/hotel-service.js";
 
 const protectedRoutes = new Set([
   "/account/",
@@ -11,6 +9,11 @@ const protectedRoutes = new Set([
   "/booking-confirmation/",
   "/booking-details/",
   "/my-bookings/",
+  "/admin/",
+  "/admin/hotels/",
+  "/admin/hotel-edit/",
+  "/admin/rooms/",
+  "/admin/bookings/",
 ]);
 const redirectStorageKey = "hotel-booking:redirect-after-login";
 
@@ -41,31 +44,19 @@ export function redirectIfAuthenticated(onError) {
     return () => {};
   }
 
-  let redirected = false;
-  const redirect = () => {
-    if (!redirected) {
-      redirected = true;
+  let active = true;
+  void getAuthenticatedUser().then((user) => {
+    if (active && user) {
       window.location.replace(takePostLoginRoute());
     }
-  };
-
-  const {
-    data: { subscription },
-  } = subscribeToAuthChanges((event, session) => {
-    if (session?.user && event !== "SIGNED_OUT") {
-      redirect();
-    }
-  });
-
-  void getAuthenticatedUser().then((user) => {
-    if (user) {
-      redirect();
-    }
   }).catch((error) => {
-    onError(error);
+    if (active) {
+      onError(error);
+    }
   });
-
-  return () => subscription.unsubscribe();
+  return () => {
+    active = false;
+  };
 }
 
 export async function renderProtectedPlaceholder(page) {
@@ -83,5 +74,33 @@ export async function renderProtectedPlaceholder(page) {
 
   if (user) {
     renderPage(page);
+  }
+}
+
+export async function renderProtectedAdminPage(page) {
+  let user;
+  try {
+    user = await requireAuthenticatedUser();
+    if (!user) {
+      return;
+    }
+
+    if (!(await getHotelAdminRole(user.id))) {
+      renderPage({
+        title: "Admin access required",
+        description:
+          "You are signed in, but this account is not authorized to access hotel administration.",
+        links: [{ label: "Back to home", href: "/" }],
+      });
+      return;
+    }
+
+    renderPage(page);
+  } catch (error) {
+    renderPage({
+      title: "Unable to verify admin access",
+      description: error.message,
+      links: [{ label: "Try signing in again", href: "/login/" }],
+    });
   }
 }

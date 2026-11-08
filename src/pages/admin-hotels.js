@@ -1,7 +1,7 @@
 import "../main.js";
-import { renderPage } from "../components/site-shell.js";
+import { renderProtectedAdminPage } from "../utils/auth-guard.js";
 
-renderPage({
+void renderProtectedAdminPage({
   title: "Manage hotels",
   description: "Hotel administration will be implemented in a later milestone.",
   layout: "admin",

@@ -51,7 +51,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Document a migration workflow that checks remote history before applying changes.
 - **Acceptance:** migrations apply in a clean local or test database; authorization, reservation integrity, and concurrent booking tests reject unauthorized access and double-booking. Apply remotely only when real credentials and migration history are available and verified.
 - **Fast-track decision:** the owner approved the hotel-card administration slice of this milestone. The committed card-management migration creates `hotels` and non-self-assignable `user_roles` tables, row-level authorization, upload policies, and illustrative card records. Room types, physical rooms, reservations, and atomic booking remain deferred to their planned milestones.
-- **Status:** The guest-profile and hotel-card migrations are applied to the verified project; the local migration filenames match remote history. The admin-check helper uses invoker permissions. The requested Auth user was not present in the connected project, so its admin role is intentionally not granted; see [admin-setup.md](./admin-setup.md). Room and reservation schema remain deferred.
+- **Status:** The guest-profile and hotel-card migrations are applied to the verified project. Remote history lists `set_hotel_admin_check_invoker` under version `20261108162005`, while the committed migration uses `20261108181932`; reconcile this timestamp drift before applying future migrations. The helper uses invoker permissions, and the initial administrator account now has its database role. Room and reservation schema remain deferred.
 
 ### 4. Shared UI and Supabase client services
 
@@ -80,7 +80,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Enforce admin-only operations through database policies and Supabase Storage policies; safely render user-managed text and images.
 - **Acceptance:** authorized administrators can manage in-scope records, guests cannot perform admin operations, and image access follows the intended policy.
 - **Fast-track decision:** the owner approved hotel-card edit, delete, and image upload controls on the homepage and hotel listings. Room, reservation, and other administrative workflows remain deferred.
-- **Status:** Frontend controls and the server-enforced hotel/storage policies are applied. The initial admin account is pending registration in the connected Supabase project and a protected role grant.
+- **Status:** The initial administrator account is registered in the connected Supabase project. Admin routes require authentication and a database-verified admin role; hotel/storage policies remain the authorization boundary for data operations. Room and reservation administration remain deferred.
 
 ### 8. Production deployment and release checks
 

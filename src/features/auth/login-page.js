@@ -22,9 +22,14 @@ import {
 } from "../../utils/auth-guard.js";
 
 export function renderLoginPage() {
+  const isAdminLogin = window.sessionStorage
+    .getItem("hotel-booking:redirect-after-login")
+    ?.startsWith("/admin/");
   const content = mountAuthPage({
-    title: "Log in",
-    description: "Sign in to manage your account and reservations.",
+    title: isAdminLogin ? "Admin sign-in" : "Log in",
+    description: isAdminLogin
+      ? "Sign in with an authorized administrator account to continue."
+      : "Sign in to manage your account and reservations.",
   });
   const status = createStatusMessage();
   addConfigurationNotice(status);
@@ -154,6 +159,7 @@ export function renderLoginPage() {
 
     setSubmitPending(submitButton, true, "Log in");
     try {
+      stopRedirectIfAuthenticated();
       await signInUser({
         email: emailInput.value,
         password: passwordInput.value,
@@ -167,5 +173,7 @@ export function renderLoginPage() {
     }
   });
 
-  redirectIfAuthenticated((error) => setStatusMessage(status, error.message));
+  const stopRedirectIfAuthenticated = redirectIfAuthenticated((error) =>
+    setStatusMessage(status, error.message),
+  );
 }
