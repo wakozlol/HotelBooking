@@ -9,7 +9,6 @@ const homePage = {
   hero: true,
   links: [
     { label: "Browse hotels", href: "/hotels/" },
-    { label: "Log in", href: "/login/" },
   ],
 };
 
