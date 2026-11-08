@@ -8,7 +8,7 @@ const homePage = {
     "Welcome to Hotel Booking. Browse hotels and plan your next stay.",
   hero: true,
   links: [
-    { label: "Browse hotels", href: "/hotels/" },
+    { label: "Browse sample stays", href: "/hotels/" },
   ],
 };
 
@@ -24,6 +24,7 @@ export function renderPage({
   links = [],
   layout = "main",
   hero = false,
+  hotelListings = false,
 }) {
   const app = document.querySelector("#app");
   if (!app) {
@@ -36,7 +37,9 @@ export function renderPage({
   }
 
   document.title = `${title} | Hotel Booking`;
-  app.replaceChildren(createLayout({ title, description, links, hero }));
+  app.replaceChildren(
+    createLayout({ title, description, links, hero, hotelListings }),
+  );
 }
 
 export function renderHomePage() {

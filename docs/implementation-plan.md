@@ -62,6 +62,7 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Display public hotel and room-type information and support searching by the agreed stay details and guest criteria.
 - Show availability and prices in EUR without suggesting payment is collected online.
 - **Acceptance:** search results match database availability for the selected criteria; forms and results are keyboard-accessible and responsive.
+- **Fast-track decision:** the owner approved an illustrative, sample-only hotel showcase before the hotel schema milestone is complete. The homepage carousel and hotel cards are clearly labeled as samples and do not claim live inventory or availability. Replace the sample data with Supabase-backed listings after the data model and policies are implemented.
 
 ### 6. Reservations, booking history, and cancellation
 

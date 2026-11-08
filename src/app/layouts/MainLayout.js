@@ -1,7 +1,12 @@
 import { createFooter } from "../../components/Footer/Footer.js";
 import { createHeader } from "../../components/Header/Header.js";
 import { createPageContent } from "./PageContent.js";
+import {
+  createHomeHotelShowcase,
+  createHotelListingsPage,
+} from "../../features/hotels/hotel-showcase.js";
 import "./MainLayout.css";
+import "../../features/hotels/hotels.css";
 
 export function createMainLayout(page) {
   const layout = document.createElement("div");
@@ -15,7 +20,11 @@ export function createMainLayout(page) {
   layout.append(
     skipLink,
     createHeader(),
-    createPageContent(page),
+    page.hero
+      ? createHomeHotelShowcase(page)
+      : page.hotelListings
+        ? createHotelListingsPage(page)
+        : createPageContent(page),
     createFooter(),
   );
   return layout;
