@@ -279,20 +279,6 @@
   height: 13rem;
 }
 
-.hotel-card__badge {
-  position: absolute;
-  bottom: 0.85rem;
-  left: 0.85rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 999px;
-  background: rgb(13 44 48 / 78%);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  backdrop-filter: blur(8px);
-}
-
 .hotel-card__body {
   padding: 1.2rem;
 }

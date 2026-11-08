@@ -38,10 +38,6 @@ function createHotelCard(hotel) {
   card.className = "hotel-card h-100";
 
   const artwork = createHotelArtwork(hotel, "hotel-card__art");
-  const badge = document.createElement("span");
-  badge.className = "hotel-card__badge";
-  badge.textContent = "Sample hotel";
-  artwork.append(badge);
 
   const body = document.createElement("div");
   body.className = "hotel-card__body";
@@ -105,7 +101,7 @@ function createCarouselSlide(hotel, index) {
 
   const eyebrow = document.createElement("p");
   eyebrow.className = "hotel-feature__eyebrow";
-  eyebrow.textContent = "A SAMPLE STAY TO INSPIRE YOU";
+  eyebrow.textContent = "FEATURED STAY";
 
   const name = document.createElement("h2");
   name.className = "hotel-feature__title";
