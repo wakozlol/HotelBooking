@@ -63,4 +63,51 @@ export const sampleHotels = [
       "https://commons.wikimedia.org/wiki/File:Kopenhagen_(DK),_Copenhagen_Admiral_Hotel_--_2017_--_1712.jpg",
     highlights: ["City address", "Nordic-inspired"],
   },
+  {
+    id: "caldera-lantern",
+    name: "Caldera Lantern Retreat",
+    location: "Sample stay · Perissa, Santorini, Greece",
+    description:
+      "A sunlit island escape concept with bright Cycladic architecture and a relaxed coastal rhythm.",
+    style: "coastal",
+    imageUrl:
+      "https://euccwinysxbwtbjwykkc.supabase.co/storage/v1/object/public/hotel-images/santorini-cove.jpg",
+    photoCredit: "Norbert Nagel",
+    photoLicense: "CC BY-SA 3.0",
+    photoLicenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+    photoSource:
+      "https://commons.wikimedia.org/wiki/File:Hotel_Anastasia_Princess_-_Perissa_-_Santorini_-_Greece_-_01.jpg",
+    highlights: ["Island light", "By the Aegean"],
+  },
+  {
+    id: "golden-lane-house",
+    name: "Golden Lane House",
+    location: "Sample stay · Prague, Czech Republic",
+    description:
+      "A city-stay concept inspired by Prague's historic lanes, warm stone, and evening strolls.",
+    style: "city",
+    imageUrl:
+      "https://euccwinysxbwtbjwykkc.supabase.co/storage/v1/object/public/hotel-images/prague-golden-lane.jpg",
+    photoCredit: "Estec Co.Ltd, Prague Hotel Operator",
+    photoLicense: "CC BY 3.0",
+    photoLicenseUrl: "https://creativecommons.org/licenses/by/3.0/",
+    photoSource: "https://commons.wikimedia.org/wiki/File:Prague_gold_alley.jpg",
+    highlights: ["Old-town walks", "City character"],
+  },
+  {
+    id: "palma-verde",
+    name: "Palma Verde Wellness",
+    location: "Sample stay · Portals Nous, Mallorca, Spain",
+    description:
+      "A garden resort concept for slow afternoons, Mediterranean greenery, and a restorative stay.",
+    style: "garden",
+    imageUrl:
+      "https://euccwinysxbwtbjwykkc.supabase.co/storage/v1/object/public/hotel-images/palma-garden.jpg",
+    photoCredit: "Lindner Hotels AG",
+    photoLicense: "CC BY-SA 3.0",
+    photoLicenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+    photoSource:
+      "https://commons.wikimedia.org/wiki/File:Lindner_Golf_%26_Wellness_Resort_Portals_Nous.jpg",
+    highlights: ["Garden setting", "Wellness-inspired"],
+  },
 ];
