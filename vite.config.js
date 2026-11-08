@@ -57,6 +57,7 @@ const pages = [
 
 const pageEntries = new Map([
   ["index.html", "/src/main.js"],
+  ["pages/index.html", "/src/main.js"],
   ...pages.map(({ file, module }) => [
     `pages/${file}`,
     `/src/pages/${module}`,
@@ -125,7 +126,8 @@ function mapPageUrls() {
       for (const fileName of Object.keys(bundle)) {
         if (
           !fileName.startsWith("pages/") ||
-          !fileName.endsWith(".html")
+          !fileName.endsWith(".html") ||
+          fileName === "pages/index.html"
         ) {
           continue;
         }
@@ -147,6 +149,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         home: resolve(projectRoot, "index.html"),
+        "pages/index": resolve(projectRoot, "pages/index.html"),
         ...Object.fromEntries(
           pages.map(({ file }) => [
             file.replaceAll("/", "-"),
