@@ -87,7 +87,7 @@ export function createHeader() {
   const login = document.createElement("a");
   login.className = "btn btn-outline-light btn-sm site-login";
   login.href = "/login/";
-  login.textContent = "Log in";
+  login.textContent = "Login";
 
   const register = document.createElement("a");
   register.className = "btn btn-warning btn-sm site-register";

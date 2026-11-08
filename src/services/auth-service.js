@@ -1,5 +1,6 @@
 import {
   getSupabaseClient,
+  setRememberSession,
   SupabaseConfigurationError,
 } from "./supabase.js";
 
@@ -10,19 +11,30 @@ export class AuthServiceError extends Error {
   }
 }
 
-export async function registerUser({ email, password, firstName, lastName }) {
+export async function registerUser({
+  email,
+  password,
+  firstName,
+  lastName,
+  phone = "",
+}) {
   const normalizedEmail = email.trim().toLowerCase();
+  const userMetadata = {
+    first_name: firstName.trim(),
+    last_name: lastName.trim(),
+  };
+  if (phone.trim()) {
+    userMetadata.phone = phone.trim();
+  }
   let result;
 
   try {
+    setRememberSession(true);
     result = await getSupabaseClient().auth.signUp({
       email: normalizedEmail,
       password,
       options: {
-        data: {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-        },
+        data: userMetadata,
         emailRedirectTo: new URL("/account/", window.location.origin).href,
       },
     });
@@ -59,10 +71,11 @@ export async function registerUser({ email, password, firstName, lastName }) {
   };
 }
 
-export async function signInUser({ email, password }) {
+export async function signInUser({ email, password, rememberMe = true }) {
   let result;
 
   try {
+    setRememberSession(rememberMe);
     result = await getSupabaseClient().auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password,

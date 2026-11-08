@@ -49,6 +49,14 @@ export function renderRegistrationPage() {
     autocomplete: "email",
     maxLength: 254,
   });
+  const { wrapper: phoneWrapper, input: phoneInput } = createField({
+    id: "phone",
+    label: "Phone number (optional)",
+    type: "tel",
+    autocomplete: "tel",
+    required: false,
+    maxLength: 32,
+  });
   const { wrapper: passwordWrapper, input: passwordInput } =
     createPasswordField({
       id: "password",
@@ -64,13 +72,32 @@ export function renderRegistrationPage() {
       help: "Enter the same password again.",
     });
 
+  const termsWrapper = document.createElement("div");
+  termsWrapper.className = "form-check mb-3";
+  const termsInput = document.createElement("input");
+  termsInput.className = "form-check-input";
+  termsInput.id = "terms";
+  termsInput.type = "checkbox";
+  termsInput.required = true;
+  const termsLabel = document.createElement("label");
+  termsLabel.className = "form-check-label";
+  termsLabel.htmlFor = termsInput.id;
+  termsLabel.textContent = "I accept the Terms and Conditions.";
+  const termsFeedback = document.createElement("div");
+  termsFeedback.className = "invalid-feedback";
+  termsFeedback.textContent =
+    "Please accept the Terms and Conditions to create your account.";
+  termsWrapper.append(termsInput, termsLabel, termsFeedback);
+
   const submitButton = createSubmitButton("Create account");
   form.append(
     firstNameWrapper,
     lastNameWrapper,
     emailWrapper,
+    phoneWrapper,
     passwordWrapper,
     confirmationWrapper,
+    termsWrapper,
     submitButton,
   );
   content.append(
@@ -129,6 +156,7 @@ export function renderRegistrationPage() {
         password: passwordInput.value,
         firstName: firstNameInput.value,
         lastName: lastNameInput.value,
+        phone: phoneInput.value,
       });
 
       if (result.confirmationRequired) {

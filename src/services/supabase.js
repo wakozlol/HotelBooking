@@ -1,6 +1,37 @@
 import { createClient } from "@supabase/supabase-js";
 
 let client;
+let rememberSession = true;
+
+const authStorage = {
+  getItem(key) {
+    const sessionValue = window.sessionStorage.getItem(key);
+    if (sessionValue !== null) {
+      rememberSession = false;
+      return sessionValue;
+    }
+
+    const localValue = window.localStorage.getItem(key);
+    if (localValue !== null) {
+      rememberSession = true;
+    }
+    return localValue;
+  },
+  setItem(key, value) {
+    const target = rememberSession
+      ? window.localStorage
+      : window.sessionStorage;
+    const other = rememberSession
+      ? window.sessionStorage
+      : window.localStorage;
+    target.setItem(key, value);
+    other.removeItem(key);
+  },
+  removeItem(key) {
+    window.localStorage.removeItem(key);
+    window.sessionStorage.removeItem(key);
+  },
+};
 
 export class SupabaseConfigurationError extends Error {
   constructor(message) {
@@ -75,6 +106,10 @@ export function isSupabaseConfigured() {
   return getSupabaseConfigurationError() === null;
 }
 
+export function setRememberSession(remember) {
+  rememberSession = remember;
+}
+
 export function getSupabaseClient() {
   if (client) {
     return client;
@@ -87,6 +122,7 @@ export function getSupabaseClient() {
 
   client = createClient(configuration.url, configuration.key, {
     auth: {
+      storage: authStorage,
       autoRefreshToken: true,
       detectSessionInUrl: true,
       persistSession: true,

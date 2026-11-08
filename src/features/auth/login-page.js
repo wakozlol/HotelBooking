@@ -45,8 +45,22 @@ export function renderLoginPage() {
       minLength: 1,
     });
 
+  const rememberWrapper = document.createElement("div");
+  rememberWrapper.className = "form-check mb-3";
+  const rememberInput = document.createElement("input");
+  rememberInput.className = "form-check-input";
+  rememberInput.id = "remember-me";
+  rememberInput.name = "rememberMe";
+  rememberInput.type = "checkbox";
+  rememberInput.checked = true;
+  const rememberLabel = document.createElement("label");
+  rememberLabel.className = "form-check-label";
+  rememberLabel.htmlFor = rememberInput.id;
+  rememberLabel.textContent = "Remember me";
+  rememberWrapper.append(rememberInput, rememberLabel);
+
   const submitButton = createSubmitButton("Log in");
-  form.append(emailWrapper, passwordWrapper, submitButton);
+  form.append(emailWrapper, passwordWrapper, rememberWrapper, submitButton);
   content.append(status, form, createPageLink("Create an account", "/register/", "New here?"));
 
   form.addEventListener("input", () => clearStatusMessage(status));
@@ -65,6 +79,7 @@ export function renderLoginPage() {
       await signInUser({
         email: emailInput.value,
         password: passwordInput.value,
+        rememberMe: rememberInput.checked,
       });
       window.location.replace(takePostLoginRoute());
     } catch (error) {

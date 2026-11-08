@@ -1,4 +1,4 @@
-import { Modal } from "bootstrap";
+import { Modal, Toast } from "bootstrap";
 import {
   clearStatusMessage,
   createField,
@@ -38,10 +38,32 @@ function createModalShell({ id, title, description, wide = false }) {
   modal.setAttribute("aria-hidden", "true");
 
   const dialog = document.createElement("div");
-  dialog.className = `modal-dialog modal-dialog-centered ${wide ? "modal-lg" : ""}`;
+  dialog.className = `modal-dialog modal-dialog-centered modal-dialog-scrollable${
+    wide ? " modal-lg" : ""
+  }`;
 
   const content = document.createElement("div");
   content.className = "modal-content";
+
+  const visual = document.createElement("aside");
+  visual.className = "auth-modal__visual";
+  visual.setAttribute("aria-label", "A warmly lit luxury hotel lounge");
+  const visualContent = document.createElement("div");
+  visualContent.className = "auth-modal__visual-content";
+  const visualEyebrow = document.createElement("p");
+  visualEyebrow.className = "auth-modal__visual-eyebrow";
+  visualEyebrow.textContent = "THE ART OF A STAY";
+  const visualHeading = document.createElement("p");
+  visualHeading.className = "auth-modal__visual-heading";
+  visualHeading.textContent = "Arrive somewhere wonderful.";
+  const visualDetail = document.createElement("p");
+  visualDetail.className = "auth-modal__visual-detail";
+  visualDetail.textContent = "Thoughtful stays, unforgettable moments.";
+  visualContent.append(visualEyebrow, visualHeading, visualDetail);
+  visual.append(visualContent);
+
+  const panel = document.createElement("div");
+  panel.className = "auth-modal__panel";
 
   const header = document.createElement("div");
   header.className = "modal-header border-0 pb-0";
@@ -69,7 +91,8 @@ function createModalShell({ id, title, description, wide = false }) {
   const footer = document.createElement("div");
   footer.className = "modal-footer justify-content-center border-0 pt-0";
 
-  content.append(header, body, footer);
+  panel.append(header, body, footer);
+  content.append(visual, panel);
   dialog.append(content);
   modal.append(dialog);
   return { modal, body, footer, status };
@@ -161,13 +184,31 @@ function createLoginForm(
       minLength: 1,
     });
 
+  const options = document.createElement("div");
+  options.className =
+    "auth-modal__options d-flex align-items-center justify-content-between gap-3";
+  const rememberWrapper = document.createElement("div");
+  rememberWrapper.className = "form-check";
+  const rememberInput = document.createElement("input");
+  rememberInput.className = "form-check-input";
+  rememberInput.id = "auth-login-remember";
+  rememberInput.name = "rememberMe";
+  rememberInput.type = "checkbox";
+  rememberInput.checked = true;
+  const rememberLabel = document.createElement("label");
+  rememberLabel.className = "form-check-label small";
+  rememberLabel.htmlFor = rememberInput.id;
+  rememberLabel.textContent = "Remember me";
+  rememberWrapper.append(rememberInput, rememberLabel);
+
   const forgotLink = document.createElement("button");
   forgotLink.className = "btn btn-link p-0 small auth-modal__switch";
   forgotLink.type = "button";
   forgotLink.textContent = "Forgot password?";
 
   const submit = createSubmitButton("Log in");
-  form.append(emailWrapper, passwordWrapper, forgotLink, submit);
+  options.append(rememberWrapper, forgotLink);
+  form.append(emailWrapper, passwordWrapper, options, submit);
 
   forgotLink.addEventListener("click", onForgotPassword);
   form.addEventListener("input", () => clearStatusMessage(status));
@@ -186,6 +227,7 @@ function createLoginForm(
       const user = await signInUser({
         email: emailInput.value,
         password: passwordInput.value,
+        rememberMe: rememberInput.checked,
       });
       onAuthenticated(user);
     } catch (error) {
@@ -235,6 +277,22 @@ function createRegisterForm(status, { onAuthenticated, switchToLogin }) {
     autocomplete: "email",
     maxLength: 254,
   });
+  const { wrapper: phoneWrapper, input: phoneInput } = createField({
+    id: "auth-register-phone",
+    label: "Phone number (optional)",
+    type: "tel",
+    autocomplete: "tel",
+    required: false,
+    maxLength: 32,
+  });
+  phoneWrapper.classList.add("auth-modal__phone");
+  emailWrapper.classList.remove("mb-3");
+  emailWrapper.classList.add("col-md-6");
+  phoneWrapper.classList.remove("mb-3");
+  phoneWrapper.classList.add("col-md-6");
+  const contactRow = document.createElement("div");
+  contactRow.className = "row g-3";
+  contactRow.append(emailWrapper, phoneWrapper);
   const { wrapper: passwordWrapper, input: passwordInput } =
     createPasswordField({
       id: "auth-register-password",
@@ -249,6 +307,13 @@ function createRegisterForm(status, { onAuthenticated, switchToLogin }) {
       autocomplete: "new-password",
       help: "Enter the same password again.",
     });
+  passwordWrapper.classList.remove("mb-3");
+  passwordWrapper.classList.add("col-md-6");
+  confirmationWrapper.classList.remove("mb-3");
+  confirmationWrapper.classList.add("col-md-6");
+  const passwordRow = document.createElement("div");
+  passwordRow.className = "row g-3";
+  passwordRow.append(passwordWrapper, confirmationWrapper);
 
   const termsWrapper = document.createElement("div");
   termsWrapper.className = "form-check mb-3";
@@ -263,15 +328,15 @@ function createRegisterForm(status, { onAuthenticated, switchToLogin }) {
   termsLabel.textContent = "I accept the Terms and Conditions.";
   const termsFeedback = document.createElement("div");
   termsFeedback.className = "invalid-feedback";
-  termsFeedback.textContent = "Please accept the Terms and Conditions to continue.";
+  termsFeedback.textContent =
+    "Please accept the Terms and Conditions to continue.";
   termsWrapper.append(terms, termsLabel, termsFeedback);
 
   const submit = createSubmitButton("Create account");
   form.append(
     nameRow,
-    emailWrapper,
-    passwordWrapper,
-    confirmationWrapper,
+    contactRow,
+    passwordRow,
     termsWrapper,
     submit,
   );
@@ -297,8 +362,12 @@ function createRegisterForm(status, { onAuthenticated, switchToLogin }) {
     );
   }
 
-  firstNameInput.addEventListener("input", () => updateNameValidity(firstNameInput));
-  lastNameInput.addEventListener("input", () => updateNameValidity(lastNameInput));
+  firstNameInput.addEventListener("input", () =>
+    updateNameValidity(firstNameInput),
+  );
+  lastNameInput.addEventListener("input", () =>
+    updateNameValidity(lastNameInput),
+  );
   passwordInput.addEventListener("input", updatePasswordValidity);
   confirmationInput.addEventListener("input", updatePasswordValidity);
   form.addEventListener("input", () => clearStatusMessage(status));
@@ -322,6 +391,7 @@ function createRegisterForm(status, { onAuthenticated, switchToLogin }) {
         password: passwordInput.value,
         firstName: firstNameInput.value,
         lastName: lastNameInput.value,
+        phone: phoneInput.value,
       });
       if (result.confirmationRequired) {
         form.reset();
@@ -334,7 +404,11 @@ function createRegisterForm(status, { onAuthenticated, switchToLogin }) {
         return;
       }
 
-      setStatusMessage(status, "Your account is ready. You're signed in.", "success");
+      setStatusMessage(
+        status,
+        "Your account is ready. You're signed in.",
+        "success",
+      );
       onAuthenticated(result.user);
     } catch (error) {
       setStatusMessage(status, error.message);
@@ -369,7 +443,30 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     wide: true,
   });
 
-  root.append(loginShell.modal, registerShell.modal);
+  const toast = document.createElement("div");
+  toast.className = "toast auth-toast border-0";
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.setAttribute("aria-atomic", "true");
+  const toastContent = document.createElement("div");
+  toastContent.className = "d-flex align-items-center";
+  const toastMessage = document.createElement("div");
+  toastMessage.className = "toast-body";
+  const toastClose = document.createElement("button");
+  toastClose.className = "btn-close btn-close-white me-2 m-auto";
+  toastClose.type = "button";
+  toastClose.setAttribute("data-bs-dismiss", "toast");
+  toastClose.setAttribute("aria-label", "Close notification");
+  toastContent.append(toastMessage, toastClose);
+  toast.append(toastContent);
+  root.append(loginShell.modal, registerShell.modal, toast);
+  const toastInstance = new Toast(toast, { delay: 5000 });
+
+  function showToast(message) {
+    toastMessage.textContent = message;
+    toastInstance.show();
+  }
+
   const modals = new Map([
     ["login", new Modal(loginShell.modal, { backdrop: true, keyboard: true, focus: true })],
     ["register", new Modal(registerShell.modal, { backdrop: true, keyboard: true, focus: true })],
@@ -419,6 +516,7 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     if (resetView?.form.isConnected) {
       resetView.form.replaceWith(loginView.form);
       loginShell.footer.replaceChildren(loginView.footer);
+      loginView.form.querySelector("input")?.focus();
     }
     clearStatusMessage(loginShell.status);
   }
@@ -427,6 +525,7 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     clearStatusMessage(loginShell.status);
     loginView.form.replaceWith(resetView.form);
     loginShell.footer.replaceChildren(resetView.footer);
+    resetView.form.querySelector("input")?.focus();
   }
 
   resetView = {
@@ -438,6 +537,7 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     onAuthenticated: (user) => {
       clearStatusMessage(loginShell.status);
       modals.get("login").hide();
+      showToast("Welcome back. You are signed in.");
       onAuthenticated(user);
     },
     switchToRegister: () => show("register"),
@@ -450,6 +550,7 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     onAuthenticated: (user) => {
       clearStatusMessage(registerShell.status);
       modals.get("register").hide();
+      showToast("Your account is ready. You are signed in.");
       onAuthenticated(user);
     },
     switchToLogin: () => show("login"),
