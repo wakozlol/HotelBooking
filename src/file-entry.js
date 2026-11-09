@@ -32,17 +32,7 @@
       title: "Hotel details",
       description: "Hotel information and room availability will appear here.",
       links: [
-        { label: "Continue to example booking", route: "booking" },
         { label: "Back to hotels", route: "hotels" },
-      ],
-    },
-    booking: {
-      title: "Booking",
-      description:
-        "Booking details and confirmation will be implemented in a later milestone.",
-      links: [
-        { label: "Log in", route: "login" },
-        { label: "Browse hotels", route: "hotels" },
       ],
     },
     login: {
@@ -66,29 +56,6 @@
       layout: "auth",
       links: [{ label: "Return to log in", route: "login" }],
     },
-    "booking-confirmation": {
-      title: "Booking confirmation",
-      description:
-        "Booking confirmation details will appear here when booking is implemented.",
-      links: [
-        { label: "View example booking details", route: "booking-details" },
-        { label: "My bookings", route: "my-bookings" },
-      ],
-    },
-    "my-bookings": {
-      title: "My bookings",
-      description:
-        "Your booking history will appear here after guest accounts and reservations are implemented.",
-      links: [
-        { label: "Log in", route: "login" },
-        { label: "Browse hotels", route: "hotels" },
-      ],
-    },
-    "booking-details": {
-      title: "Booking details",
-      description: "Details for the selected booking will appear here.",
-      links: [{ label: "Back to my bookings", route: "my-bookings" }],
-    },
     account: {
       title: "Account",
       description:
@@ -100,11 +67,7 @@
       description:
         "Hotel administration tools will be implemented in a later milestone.",
       layout: "admin",
-      links: [
-        { label: "Manage hotels", route: "admin/hotels" },
-        { label: "Manage rooms", route: "admin/rooms" },
-        { label: "Manage bookings", route: "admin/bookings" },
-      ],
+      links: [{ label: "Manage hotels", route: "admin/hotels" }],
     },
     "admin-hotels": {
       title: "Manage hotels",
@@ -122,41 +85,19 @@
       layout: "admin",
       links: [{ label: "Back to hotels", route: "admin/hotels" }],
     },
-    "admin-rooms": {
-      title: "Manage rooms",
-      description: "Room administration will be implemented in a later milestone.",
-      layout: "admin",
-      links: [
-        { label: "Manage hotels", route: "admin/hotels" },
-        { label: "Admin home", route: "admin" },
-      ],
-    },
-    "admin-bookings": {
-      title: "Manage bookings",
-      description:
-        "Reservation administration will be implemented in a later milestone.",
-      layout: "admin",
-      links: [{ label: "Admin home", route: "admin" }],
-    },
   };
 
   const routeFiles = {
     home: "index.html",
     hotels: "pages/hotels/index.html",
     hotel: "pages/hotel/index.html",
-    booking: "pages/booking/index.html",
     login: "pages/login/index.html",
     register: "pages/register/index.html",
     "reset-password": "pages/reset-password/index.html",
-    "booking-confirmation": "pages/booking-confirmation/index.html",
-    "my-bookings": "pages/my-bookings/index.html",
-    "booking-details": "pages/booking-details/index.html",
     account: "pages/account/index.html",
     admin: "pages/admin/index.html",
     "admin/hotels": "pages/admin/hotels/index.html",
     "admin/hotel-edit": "pages/admin/hotel-edit/index.html",
-    "admin/rooms": "pages/admin/rooms/index.html",
-    "admin/bookings": "pages/admin/bookings/index.html",
   };
 
   const page = routes[entry];
@@ -202,8 +143,6 @@
       for (const [label, route] of [
         ["Overview", "admin"],
         ["Hotels", "admin/hotels"],
-        ["Rooms", "admin/rooms"],
-        ["Bookings", "admin/bookings"],
       ]) {
         nav.append(createLink(label, route));
       }
@@ -215,7 +154,6 @@
     nav.setAttribute("aria-label", "Main navigation");
     for (const [label, route] of [
       ["Hotels", "hotels"],
-      ["My bookings", "my-bookings"],
       ["Account", "account"],
     ]) {
       nav.append(createLink(label, route));
@@ -299,7 +237,6 @@
     footerNav.setAttribute("aria-label", "Footer navigation");
     footerNav.append(
       createLink("Browse hotels", "hotels"),
-      createLink("My bookings", "my-bookings"),
       createLink("Sign in", "login"),
     );
     const copyright = document.createElement("p");

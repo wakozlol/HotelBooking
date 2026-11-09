@@ -105,29 +105,14 @@ export function createAdminDashboard() {
     icon: "H",
     tone: "gold",
   });
-  const roomMetric = createMetric({
-    label: "Room inventory",
-    value: "Planned",
-    detail: "Room management is not enabled yet",
-    icon: "R",
-    tone: "blue",
-  });
-  const bookingMetric = createMetric({
-    label: "Reservations",
-    value: "Planned",
-    detail: "Booking management is not enabled yet",
-    icon: "B",
-    tone: "green",
-  });
-  metrics.append(hotelMetric.card, roomMetric.card, bookingMetric.card);
+  metrics.append(hotelMetric.card);
 
   const sectionHeading = document.createElement("div");
   sectionHeading.className = "admin-dashboard__section-heading";
   const sectionTitle = document.createElement("h2");
   sectionTitle.textContent = "Management";
   const sectionDescription = document.createElement("p");
-  sectionDescription.textContent =
-    "Your available tools and what is coming next.";
+  sectionDescription.textContent = "Manage your property catalog.";
   sectionHeading.append(sectionTitle, sectionDescription);
 
   const management = document.createElement("section");
@@ -143,22 +128,6 @@ export function createAdminDashboard() {
       action: "Open hotel management",
       icon: "01",
       available: true,
-    }),
-    createManagementCard({
-      eyebrow: "INVENTORY",
-      title: "Rooms",
-      description:
-        "Room types and physical room inventory will be available when their database workflow is implemented.",
-      icon: "02",
-      available: false,
-    }),
-    createManagementCard({
-      eyebrow: "GUEST STAYS",
-      title: "Bookings",
-      description:
-        "Reservation management will be available after booking inventory and policies are implemented.",
-      icon: "03",
-      available: false,
     }),
   );
 

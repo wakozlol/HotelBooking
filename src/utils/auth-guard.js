@@ -5,15 +5,9 @@ import { getHotelAdminRole } from "../features/hotels/hotel-service.js";
 
 const protectedRoutes = new Set([
   "/account/",
-  "/booking/",
-  "/booking-confirmation/",
-  "/booking-details/",
-  "/my-bookings/",
   "/admin/",
   "/admin/hotels/",
   "/admin/hotel-edit/",
-  "/admin/rooms/",
-  "/admin/bookings/",
 ]);
 const redirectStorageKey = "hotel-booking:redirect-after-login";
 

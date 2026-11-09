@@ -8,28 +8,12 @@ const projectRoot = fileURLToPath(new URL(".", import.meta.url));
 const pages = [
   { route: "/hotels/", file: "hotels/index.html", module: "hotels.js" },
   { route: "/hotel/", file: "hotel/index.html", module: "hotel.js" },
-  { route: "/booking/", file: "booking/index.html", module: "booking.js" },
   { route: "/login/", file: "login/index.html", module: "login.js" },
   { route: "/register/", file: "register/index.html", module: "register.js" },
   {
     route: "/reset-password/",
     file: "reset-password/index.html",
     module: "reset-password.js",
-  },
-  {
-    route: "/booking-confirmation/",
-    file: "booking-confirmation/index.html",
-    module: "booking-confirmation.js",
-  },
-  {
-    route: "/my-bookings/",
-    file: "my-bookings/index.html",
-    module: "my-bookings.js",
-  },
-  {
-    route: "/booking-details/",
-    file: "booking-details/index.html",
-    module: "booking-details.js",
   },
   { route: "/account/", file: "account/index.html", module: "account.js" },
   { route: "/admin/", file: "admin/index.html", module: "admin.js" },
@@ -42,16 +26,6 @@ const pages = [
     route: "/admin/hotel-edit/",
     file: "admin/hotel-edit/index.html",
     module: "admin-hotel-edit.js",
-  },
-  {
-    route: "/admin/rooms/",
-    file: "admin/rooms/index.html",
-    module: "admin-rooms.js",
-  },
-  {
-    route: "/admin/bookings/",
-    file: "admin/bookings/index.html",
-    module: "admin-bookings.js",
   },
 ];
 

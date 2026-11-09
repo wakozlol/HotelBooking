@@ -2,7 +2,6 @@ import "./Footer.css";
 
 const footerLinks = [
   { label: "Browse hotels", href: "/hotels/" },
-  { label: "My bookings", href: "/my-bookings/" },
   { label: "Sign in", href: "/login/" },
 ];
 
@@ -62,7 +61,7 @@ export function createFooter() {
   const helpText = document.createElement("p");
   helpText.className = "site-footer__description mb-0";
   helpText.textContent =
-    "Browse available stays, review your bookings, or sign in to manage your account.";
+    "Explore the hotel collection or sign in to manage your account.";
   help.append(helpTitle, helpText);
 
   const divider = document.createElement("div");
