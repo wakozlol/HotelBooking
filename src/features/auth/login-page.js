@@ -31,8 +31,9 @@ export function renderLoginPage() {
       ? "Sign in with an authorized administrator account to continue."
       : "Sign in to manage your account and reservations.",
   });
+  const configurationNotice = createStatusMessage();
   const status = createStatusMessage();
-  addConfigurationNotice(status);
+  addConfigurationNotice(configurationNotice);
 
   const form = document.createElement("form");
   form.className = "auth-form auth-modal__form";
@@ -85,7 +86,7 @@ export function renderLoginPage() {
     "/register/",
     "New here?",
   );
-  content.append(status, form, accountLink);
+  content.append(configurationNotice, status, form, accountLink);
 
   const resetForm = document.createElement("form");
   resetForm.className = "auth-form auth-modal__form";

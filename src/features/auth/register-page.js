@@ -23,8 +23,9 @@ export function renderRegistrationPage() {
     title: "Create an account",
     description: "Create a guest account to manage your reservations.",
   });
+  const configurationNotice = createStatusMessage();
   const status = createStatusMessage();
-  addConfigurationNotice(status);
+  addConfigurationNotice(configurationNotice);
 
   const form = document.createElement("form");
   form.className = "auth-form auth-modal__form";
@@ -101,6 +102,7 @@ export function renderRegistrationPage() {
     submitButton,
   );
   content.append(
+    configurationNotice,
     status,
     form,
     createPageLink("Log in", "/login/", "Already have an account?"),

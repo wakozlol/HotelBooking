@@ -42,9 +42,12 @@ export class SupabaseConfigurationError extends Error {
 
 function getConfiguration() {
   const url = import.meta.env.VITE_SUPABASE_URL?.trim();
+  const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
   const key =
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-    import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+    publishableKey && publishableKey !== "your-supabase-publishable-key"
+      ? publishableKey
+      : anonKey;
 
   const missing = [];
   if (!url || url === "https://your-project-ref.supabase.co") {

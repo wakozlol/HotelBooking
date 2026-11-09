@@ -1,5 +1,6 @@
 import { Modal, Toast } from "bootstrap";
 import {
+  addConfigurationNotice,
   clearStatusMessage,
   createField,
   createPasswordField,
@@ -13,7 +14,6 @@ import {
   requestPasswordReset,
   signInUser,
 } from "../../services/auth-service.js";
-import { getSupabaseConfigurationError } from "../../services/supabase.js";
 import "./AuthModal.css";
 
 const securePasswordPattern =
@@ -86,6 +86,8 @@ function createModalShell({ id, title, description, wide = false }) {
 
   const body = document.createElement("div");
   body.className = "modal-body pt-4";
+  const configurationNotice = createStatusMessage();
+  addConfigurationNotice(configurationNotice);
   const status = createStatusMessage();
 
   const footer = document.createElement("div");
@@ -95,7 +97,7 @@ function createModalShell({ id, title, description, wide = false }) {
   content.append(visual, panel);
   dialog.append(content);
   modal.append(dialog);
-  return { modal, body, footer, status };
+  return { modal, body, footer, configurationNotice, status };
 }
 
 function createSubmitButton(label, primary = true) {
@@ -471,7 +473,6 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     ["login", new Modal(loginShell.modal, { backdrop: true, keyboard: true, focus: true })],
     ["register", new Modal(registerShell.modal, { backdrop: true, keyboard: true, focus: true })],
   ]);
-  const configurationError = getSupabaseConfigurationError();
   let activeModal = null;
   let pendingModal = null;
   let returnFocusTarget = null;
@@ -487,12 +488,9 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     if (name === "login") {
       showLoginView();
     }
-    const targetStatus =
-      name === "login" ? loginShell.status : registerShell.status;
-    clearStatusMessage(targetStatus);
-    if (configurationError) {
-      setStatusMessage(targetStatus, configurationError, "warning");
-    }
+    clearStatusMessage(
+      name === "login" ? loginShell.status : registerShell.status,
+    );
     if (activeModal) {
       pendingModal = name;
       modals.get(activeModal).hide();
@@ -543,7 +541,11 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     switchToRegister: () => show("register"),
     onForgotPassword: showResetView,
   });
-  loginShell.body.append(loginShell.status, loginView.form);
+  loginShell.body.append(
+    loginShell.configurationNotice,
+    loginShell.status,
+    loginView.form,
+  );
   loginShell.footer.append(loginView.footer);
 
   const registerForm = createRegisterForm(registerShell.status, {
@@ -555,14 +557,12 @@ export function createAuthModal({ onAuthenticated = () => {} } = {}) {
     },
     switchToLogin: () => show("login"),
   });
-  registerShell.body.append(registerShell.status, registerForm.form);
+  registerShell.body.append(
+    registerShell.configurationNotice,
+    registerShell.status,
+    registerForm.form,
+  );
   registerShell.footer.append(registerForm.footer);
-
-  if (configurationError) {
-    for (const shell of [loginShell, registerShell]) {
-      setStatusMessage(shell.status, configurationError, "warning");
-    }
-  }
 
   for (const [name, shell] of [
     ["login", loginShell],
