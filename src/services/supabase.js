@@ -46,15 +46,16 @@ function getConfiguration() {
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ||
     import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-  const isExampleValue =
-    url === "https://your-project-ref.supabase.co" ||
-    key === "your-supabase-publishable-key" ||
-    key === "your-supabase-anon-key";
-
-  if (!url || !key || isExampleValue) {
+  const missing = [];
+  if (!url || url === "https://your-project-ref.supabase.co") {
+    missing.push("VITE_SUPABASE_URL");
+  }
+  if (!key || key === "your-supabase-publishable-key" || key === "your-supabase-anon-key") {
+    missing.push("VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY)");
+  }
+  if (missing.length) {
     return {
-      error:
-        "Supabase is not configured yet. In the project-root .env file, set VITE_SUPABASE_URL and either VITE_SUPABASE_PUBLISHABLE_KEY or VITE_SUPABASE_ANON_KEY to your own project values, then restart Vite.",
+      error: `Supabase configuration is missing: ${missing.join(", ")}. Set the missing values in your local .env file or Netlify build environment, then restart Vite or redeploy.`,
     };
   }
 

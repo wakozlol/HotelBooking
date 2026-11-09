@@ -95,7 +95,15 @@ export async function signInUser({ email, password, rememberMe = true }) {
         "Too many sign-in attempts. Please wait a moment and try again.",
       );
     }
-    throw new AuthServiceError("Email or password is incorrect.");
+    if (result.error.code === "email_not_confirmed") {
+      throw new AuthServiceError("Confirm your email address before signing in.");
+    }
+    if (result.error.code === "invalid_credentials") {
+      throw new AuthServiceError("Email or password is incorrect.");
+    }
+    throw new AuthServiceError(
+      "We could not sign you in. Check your connection or Supabase configuration and try again.",
+    );
   }
 
   if (!result.data.user) {

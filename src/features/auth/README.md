@@ -9,3 +9,10 @@ Copy the project-root `.env.example` to the project-root `.env` (beside `package
 Apply the committed Supabase migrations in order. The profile migration links profiles to `auth.users`, creates profiles from signup metadata, and limits profile access with grants and RLS. Existing authenticated users without a profile can provide their names on `/account/` to create their own profile; they cannot create or edit another user's profile. In Supabase Auth URL configuration, allow the local Vite origin's `/account/` confirmation redirect and `/reset-password/` recovery redirect, plus the equivalent paths on the actual production origin.
 
 Start the app with `npm run dev`. The direct-file and plain Live Server fallback is a static preview and cannot load the Vite-bundled Supabase SDK or provide authentication.
+
+For Netlify, deploy the repository and branch containing `netlify.toml`, using
+`npm run build` and `dist`. Set `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_PUBLISHABLE_KEY` (or `VITE_SUPABASE_ANON_KEY`) in the site's
+Netlify build environment and redeploy after changing them. Do not configure a
+service-role key as a Vite variable. The production `/account/` and
+`/reset-password/` URLs must be allowed in Supabase Auth URL Configuration.
