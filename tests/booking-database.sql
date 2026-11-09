@@ -5,6 +5,8 @@ declare
   hotel text;
   room_type uuid;
   room uuid;
+  other_room uuid;
+  available_room uuid;
   guest_one uuid := gen_random_uuid();
   guest_two uuid := gen_random_uuid();
   request_id uuid := gen_random_uuid();
@@ -25,9 +27,11 @@ begin
       values (hotel, 'Test ' || gen_random_uuid()::text) returning id into room_type;
     insert into public.rooms (hotel_id, room_number, capacity, nightly_rate, room_type_id)
       values (hotel, gen_random_uuid()::text, 2, 123.45, room_type) returning id into room;
+    insert into public.rooms (hotel_id, room_number, capacity, nightly_rate, room_type_id)
+      values (hotel, gen_random_uuid()::text, 2, 123.45, room_type) returning id into other_room;
     select available_count into matches from public.list_room_offers(hotel, checkin, checkin + 2, 2)
       where room_type_id = room_type;
-    if matches <> 1 then raise exception 'Available room not found'; end if;
+    if matches is distinct from 2 then raise exception 'Both available rooms were not found'; end if;
     rejected := false;
     begin
       perform public.list_room_offers(hotel, checkin, checkin, 2);
@@ -42,9 +46,11 @@ begin
     end if;
     select * into retry from public.confirm_room_booking(room, room_type, checkin, checkin + 2, 2, 123.45, request_id);
     if retry.id <> booking.id then raise exception 'Retry was not idempotent'; end if;
-    select available_count into matches from public.list_room_offers(hotel, checkin + 1, checkin + 3, 2)
+    select available_count, room_id into matches, available_room from public.list_room_offers(hotel, checkin + 1, checkin + 3, 2)
       where room_type_id = room_type;
-    if matches <> 0 then raise exception 'Overlapping room was shown available'; end if;
+    if matches is distinct from 1 or available_room is distinct from other_room then
+      raise exception 'The remaining available room was not offered';
+    end if;
     perform set_config('request.jwt.claim.sub', guest_two::text, true);
     select count(*) into matches from public.my_reservations() where id = booking.id;
     if matches <> 0 then raise exception 'Another guest could view the booking'; end if;
@@ -54,6 +60,15 @@ begin
     exception when sqlstate 'P0001' then rejected := true;
     end;
     if not rejected then raise exception 'Overlapping booking accepted'; end if;
+    select * into retry from public.confirm_room_booking(other_room, room_type, checkin, checkin + 2, 2, 123.45, gen_random_uuid());
+    if retry.room_id is distinct from other_room or retry.status is distinct from 'confirmed' then
+      raise exception 'The other available room was not booked';
+    end if;
+    select count(*) into matches from public.my_reservations() where id = retry.id;
+    if matches <> 1 then raise exception 'The second guest cannot see their booking'; end if;
+    select available_count into matches from public.list_room_offers(hotel, checkin, checkin + 2, 2)
+      where room_type_id = room_type;
+    if matches is distinct from 0 then raise exception 'Both reserved rooms should be unavailable'; end if;
     rejected := false;
     begin
       perform public.cancel_my_reservation(booking.id);

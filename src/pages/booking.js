@@ -26,17 +26,14 @@ async function initialize() {
       listRoomOffers(draft.hotelId, draft),
     ]);
     const hotel = hotels.find((item) => item.id === draft.hotelId);
-    const offer = offers.find((item) =>
-      item.typeId === draft.typeId &&
-      item.nightlyRate === draft.nightlyRate && item.availableCount > 0,
-    );
+    const offer = offers.find((item) => item.typeId === draft.typeId);
     if (!hotel || !offer) {
       throw new Error("Sorry, this room is no longer available. Please select another room.");
     }
 
     renderPage({
       title: "Review your booking",
-      description: "Confirm your stay. Payment is made at the hotel.",
+      description: "Availability and price for your selected room are checked when you confirm. Payment is made at the hotel.",
       links: [{ label: "Choose another room", href: "/hotels/" }],
     });
     const main = document.querySelector("#main-content");
