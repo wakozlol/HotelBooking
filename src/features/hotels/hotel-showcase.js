@@ -307,7 +307,7 @@ function createHotelDetailsModal() {
   const book = document.createElement("button");
   book.className = "btn btn-success";
   book.type = "button";
-  book.textContent = "Book";
+  book.textContent = "Book Now";
   book.setAttribute("aria-expanded", "false");
   book.setAttribute("aria-controls", "hotel-stay-booking");
   footer.append(book);

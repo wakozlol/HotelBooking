@@ -34,31 +34,53 @@ function descendants(element) {
   return [element, ...element.children.flatMap(descendants)];
 }
 
-function setup(offers = []) {
+function setup(offers = [], findOffers) {
   globalThis.document = { createElement: (tag) => new Element(tag) };
   const calls = [];
   const selection = [];
   const booking = createStayBooking({ id: "hotel-1" }, {
     live: true,
-    findOffers: async (...args) => { calls.push(args); return offers; },
+    findOffers: async (...args) => {
+      calls.push(args);
+      return findOffers ? findOffers(...args) : offers;
+    },
     startBooking: (draft) => selection.push(draft),
   });
   const all = () => descendants(booking.element);
   const byId = (id) => all().find((element) => element.id === id);
   const form = all().find((element) => element.tagName === "form");
   const status = all().find((element) => element.className === "hotel-stay-preview__summary");
-  byId("stay-check-in").value = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-  byId("stay-check-out").value = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-  byId("stay-guests").value = "2";
   return { booking, calls, selection, all, byId, form, status };
 }
 
-test("shows real offers and preserves the selected booking details", async () => {
+const flush = () => new Promise((resolve) => setTimeout(resolve, 400));
+
+test("automatically loads offers on opening without an availability button", async () => {
+  const ui = setup([]);
+  ui.booking.show();
+  await Promise.resolve();
+  assert.equal(ui.calls.length, 1);
+  assert.equal(ui.calls[0][0], "hotel-1");
+  assert.equal(ui.calls[0][1].checkIn, ui.byId("stay-check-in").value);
+  assert.equal(ui.calls[0][1].checkOut, ui.byId("stay-check-out").value);
+  assert.ok(!ui.all().some((element) => element.textContent === "Check availability"));
+  ui.booking.show();
+  assert.equal(ui.calls.length, 1);
+});
+
+test("refreshes offers after valid input and preserves selected booking details", async () => {
   const ui = setup([{ typeId: "type-1", typeName: "Double", roomId: "room-1", capacity: 2, nightlyRate: 120.5, availableCount: 2 }]);
-  await ui.form.fire("submit");
+  ui.booking.show();
+  await Promise.resolve();
+  ui.byId("stay-check-in").value = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+  ui.byId("stay-check-out").value = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+  ui.byId("stay-guests").value = "2";
+  await ui.byId("stay-guests").fire("input");
+  await flush();
+  assert.equal(ui.calls.length, 2);
   assert.equal(ui.calls[0][0], "hotel-1");
   assert.ok(ui.all().some((element) => element.textContent.includes("2 available") && element.textContent.includes("241.00 total")));
-  const button = ui.all().find((element) => element.textContent === "Book now");
+  const button = ui.all().find((element) => element.textContent === "Select room");
   await button.fire("click");
   assert.equal(ui.selection[0].hotelId, "hotel-1");
   assert.equal(ui.selection[0].typeId, "type-1");
@@ -70,23 +92,51 @@ test("shows real offers and preserves the selected booking details", async () =>
 
 test("disables unavailable room offers", async () => {
   const ui = setup([{ typeId: "type-1", typeName: "Double", roomId: null, capacity: 2, nightlyRate: 100, availableCount: 0 }]);
-  await ui.form.fire("submit");
+  ui.booking.show();
+  await Promise.resolve();
   assert.equal(ui.all().find((element) => element.textContent === "Unavailable").disabled, true);
 });
 
 test("does not search invalid dates or guest counts", async () => {
   const ui = setup();
+  ui.booking.show();
+  await Promise.resolve();
   ui.byId("stay-guests").value = "101";
-  await ui.form.fire("submit");
-  assert.equal(ui.calls.length, 0);
+  await ui.byId("stay-guests").fire("input");
+  await flush();
+  assert.equal(ui.calls.length, 1);
+  assert.match(ui.status.textContent, /Choose valid dates/);
   ui.byId("stay-guests").value = "2";
   ui.byId("stay-check-out").value = ui.byId("stay-check-in").value;
-  await ui.form.fire("submit");
-  assert.equal(ui.calls.length, 0);
+  await ui.byId("stay-check-out").fire("input");
+  await flush();
+  assert.equal(ui.calls.length, 1);
+});
+
+test("ignores an earlier availability result after the selection changes", async () => {
+  let resolveFirst;
+  const pending = new Promise((resolve) => { resolveFirst = resolve; });
+  const ui = setup([], () => pending);
+  ui.booking.show();
+  ui.byId("stay-guests").value = "101";
+  await ui.byId("stay-guests").fire("input");
+  resolveFirst([{ typeId: "old", typeName: "Stale room", roomId: "room-1", capacity: 2, nightlyRate: 100, availableCount: 1 }]);
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.ok(!ui.all().some((element) => element.textContent === "Stale room"));
+  assert.match(ui.status.textContent, /Choose valid dates/);
+});
+
+test("shows availability errors instead of claiming there are no room types", async () => {
+  const ui = setup([], async () => { throw new Error("Availability could not be checked."); });
+  ui.booking.show();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.match(ui.status.textContent, /could not be checked/);
 });
 
 test("reports no room types", async () => {
   const ui = setup();
-  await ui.form.fire("submit");
-  assert.match(ui.status.textContent, /No room types/);
+  ui.booking.show();
+  await Promise.resolve();
+  assert.match(ui.status.textContent, /No active room types/);
 });

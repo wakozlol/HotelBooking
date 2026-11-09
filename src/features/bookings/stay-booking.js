@@ -60,11 +60,7 @@ export function createStayBooking(hotel, {
   guests.input.max = "100";
   guests.input.step = "1";
   guests.input.value = "1";
-  const search = document.createElement("button");
-  search.className = "btn btn-outline-success";
-  search.type = "submit";
-  search.textContent = "Check availability";
-  fields.append(checkIn.wrapper, checkOut.wrapper, guests.wrapper, search);
+  fields.append(checkIn.wrapper, checkOut.wrapper, guests.wrapper);
   const results = document.createElement("div");
   results.className = "hotel-booking-results";
   const status = document.createElement("p");
@@ -99,7 +95,7 @@ export function createStayBooking(hotel, {
       const offers = await findOffers(hotel.id, stay);
       if (current !== generation) return;
       if (!offers.length) {
-        status.textContent = "No room types are available at this hotel yet.";
+        status.textContent = "No active room types are offered at this hotel.";
         return;
       }
       const nights = (Date.parse(`${stay.checkOut}T00:00:00Z`) - Date.parse(`${stay.checkIn}T00:00:00Z`)) / 86400000;
@@ -117,7 +113,7 @@ export function createStayBooking(hotel, {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "btn btn-success";
-        button.textContent = offer.availableCount ? "Book now" : "Unavailable";
+        button.textContent = offer.availableCount ? "Select room" : "Unavailable";
         button.disabled = !offer.availableCount || !offer.roomId;
         button.addEventListener("click", () => {
           try {
@@ -144,21 +140,30 @@ export function createStayBooking(hotel, {
       results.replaceChildren();
       status.textContent = "";
       updateDates();
-      if (form.checkValidity()) timer = setTimeout(() => void searchRooms(), 350);
+      if (form.checkValidity()) {
+        timer = setTimeout(() => void searchRooms(), 350);
+      } else {
+        status.textContent = "Choose valid dates and a guest count from 1 to 100.";
+      }
     });
   }
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    clearTimeout(timer);
-    if (form.reportValidity()) await searchRooms();
-  });
+  form.addEventListener("submit", (event) => event.preventDefault());
   updateDates();
+  checkIn.input.value = checkIn.input.min;
+  checkOut.input.value = checkOut.input.min;
   return {
     element: section,
     show() {
+      if (!section.hidden) {
+        if (live) checkIn.input.focus();
+        return;
+      }
       section.hidden = false;
       updateDates();
-      if (live) checkIn.input.focus();
+      if (live) {
+        checkIn.input.focus();
+        void searchRooms();
+      }
     },
   };
 }
