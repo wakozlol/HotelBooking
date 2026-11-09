@@ -20,6 +20,8 @@ The previously deleted route HTML, page modules, shared shell, and Vite configur
 ├── pages/                              # Separate Vite HTML entry files
 │   ├── hotels/index.html
 │   ├── hotel/index.html
+│   ├── booking/index.html
+│   ├── my-bookings/index.html
 │   ├── login/index.html
 │   ├── register/index.html
 │   ├── account/index.html

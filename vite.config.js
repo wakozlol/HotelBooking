@@ -8,6 +8,8 @@ const projectRoot = fileURLToPath(new URL(".", import.meta.url));
 const pages = [
   { route: "/hotels/", file: "hotels/index.html", module: "hotels.js" },
   { route: "/hotel/", file: "hotel/index.html", module: "hotel.js" },
+  { route: "/booking/", file: "booking/index.html", module: "booking.js" },
+  { route: "/my-bookings/", file: "my-bookings/index.html", module: "my-bookings.js" },
   { route: "/login/", file: "login/index.html", module: "login.js" },
   { route: "/register/", file: "register/index.html", module: "register.js" },
   {

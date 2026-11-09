@@ -14,28 +14,31 @@ Apply the committed migrations in timestamp order:
 4. `20261108183516_create_room_reservations.sql`
 5. `20261109091149_list_available_rooms.sql`
 6. `20261109091604_allow_self_profile_creation.sql`
+7. `20261109092746_booking_flow.sql`
+8. `20261109093003_retire_legacy_booking_rpc.sql`
 
 The `set_hotel_admin_check_invoker` migration was renamed to match the verified remote version and SQL; it was not reapplied.
 The `list_available_rooms` migration is applied to the connected project; its
 timestamp matches the remote migration history.
 The profile self-creation migration is also applied to the connected project.
 
-The room and reservation migration has been applied to the connected project. It
-creates empty `rooms` and `reservations` tables, restricts guest reservations
-to their owner and admins, and requires authenticated bookings to use `book_room`.
-The function checks room capacity and the expected EUR rate, and the database
-rejects overlapping confirmed stays. Room records must contain real inventory
-and prices; the illustrative hotel rates are not used. The hotel details Book
-button checks real availability and confirms reservations for signed-in guests.
-Room management, booking history, and cancellation screens are not implemented.
+The booking migrations are applied to the connected project. They retain the
+existing `rooms` and `reservations` tables, add `room_types`, and use
+`confirm_room_booking` for authenticated reservations. The function checks the
+room type, capacity and quoted EUR rate, and the database rejects overlapping
+confirmed stays. The legacy `book_room` RPC is no longer available to browser
+clients. Guests can view only their own reservation details and cancel confirmed
+stays until 24 hours before the check-in date begins in UTC.
 
 The owner chose to leave room inventory empty. To enable bookings, an authorized
-administrator must add real physical rooms to `public.rooms` in Supabase, with
-the existing `hotel_id`, a unique room number for that hotel, capacity, nightly
-EUR rate, and `is_active` set to true. Only published hotels and active rooms
-are offered. Availability is rechecked by the atomic booking operation, so a
-room can become unavailable between search and confirmation. No payment is
-collected online.
+administrator must add real room types to `public.room_types` and physical rooms
+to `public.rooms` in Supabase. Each room needs an existing `hotel_id`, matching
+`room_type_id`, a unique room number within the hotel, capacity, nightly EUR
+rate, and `is_active` set to true. Older rooms without a type are preserved but
+will not appear in the new booking flow until assigned a type. Only published
+hotels and active room types and rooms are offered. Availability is rechecked
+by the atomic booking operation, so a room can become unavailable between
+search and confirmation. No payment is collected online.
 
 To grant the role to another account, first register it through the site's registration page and complete any required email confirmation. Then run this statement in the Supabase SQL Editor while signed in as a project administrator, replacing the email with the registered account:
 

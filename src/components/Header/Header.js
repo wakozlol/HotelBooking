@@ -114,7 +114,10 @@ export function createHeader() {
 
     const menu = document.createElement("ul");
     menu.className = "dropdown-menu dropdown-menu-end";
-    for (const [label, href] of [["My Account", "/account/"]]) {
+    for (const [label, href] of [
+      ["My Account", "/account/"],
+      ["My Bookings", "/my-bookings/"],
+    ]) {
       const item = document.createElement("li");
       const link = document.createElement("a");
       link.className = "dropdown-item";

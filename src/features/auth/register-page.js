@@ -13,7 +13,7 @@ import {
   validateForm,
 } from "./auth-ui.js";
 import { registerUser } from "../../services/auth-service.js";
-import { redirectIfAuthenticated } from "../../utils/auth-guard.js";
+import { redirectIfAuthenticated, takePostLoginRoute } from "../../utils/auth-guard.js";
 
 const securePasswordPattern =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
@@ -171,7 +171,7 @@ export function renderRegistrationPage() {
       }
 
       setStatusMessage(status, "Your account has been created.", "success");
-      window.location.replace("/account/");
+      window.location.replace(takePostLoginRoute("/account/"));
     } catch (error) {
       setStatusMessage(status, error.message);
     } finally {

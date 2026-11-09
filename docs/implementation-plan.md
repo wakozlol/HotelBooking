@@ -76,7 +76,8 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Show the guest's own reservation history and enforce cancellation eligibility in the database.
 - **Acceptance:** successful bookings have one room and an immediate confirmation; concurrent attempts cannot book the same room; ineligible cancellations and unauthorized history access are rejected.
 - **Fast-track decision:** the owner requested connecting the hotel details Book button to real reservations and chose to leave physical-room inventory empty. The existing reservation table and atomic booking operation are reused; booking history, cancellation, and room administration remain out of scope for this slice.
-- **Status:** The Book button searches eligible physical rooms and confirms a selected room using the existing atomic operation. The availability migration is applied to the connected project. No physical rooms have been added, so bookings require real inventory first; the full milestone acceptance checks remain outstanding.
+- **Status:** Booking review, real room-type availability, an idempotent atomic confirmation RPC, guest reservation history, and cancellation are implemented. The related migrations are applied to the connected project. No physical rooms have been added, so bookings require real inventory first. Database and automated UI/service checks passed; a complete signed-in browser booking remains to be verified.
+- **Owner-requested expansion:** Implement room types, availability, sign-in continuation, booking review, guest history and cancellation. The owner selected a cancellation cutoff 24 hours before the check-in date begins (UTC), asked to preserve existing rooms, and approved temporary integration-test data. No permanent inventory may be invented.
 
 ### 7. Admin management
 

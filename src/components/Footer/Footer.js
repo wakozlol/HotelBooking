@@ -2,6 +2,7 @@ import "./Footer.css";
 
 const footerLinks = [
   { label: "Browse hotels", href: "/hotels/" },
+  { label: "My bookings", href: "/my-bookings/" },
   { label: "Sign in", href: "/login/" },
 ];
 

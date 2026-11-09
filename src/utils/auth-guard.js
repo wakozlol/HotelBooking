@@ -2,20 +2,9 @@ import { renderPage } from "../app/App.js";
 import { getAuthenticatedUser } from "../services/auth-service.js";
 import { isSupabaseConfigured } from "../services/supabase.js";
 import { getHotelAdminRole } from "../features/hotels/hotel-service.js";
+import { rememberProtectedRoute, takePostLoginRoute } from "./auth-redirect.js";
 
-const protectedRoutes = new Set([
-  "/account/",
-  "/admin/",
-  "/admin/hotels/",
-  "/admin/hotel-edit/",
-]);
-const redirectStorageKey = "hotel-booking:redirect-after-login";
-
-export function takePostLoginRoute() {
-  const route = window.sessionStorage.getItem(redirectStorageKey);
-  window.sessionStorage.removeItem(redirectStorageKey);
-  return protectedRoutes.has(route) ? route : "/";
-}
+export { takePostLoginRoute } from "./auth-redirect.js";
 
 export async function requireAuthenticatedUser() {
   const user = await getAuthenticatedUser();
@@ -23,12 +12,7 @@ export async function requireAuthenticatedUser() {
     return user;
   }
 
-  const route = window.location.pathname.endsWith("/")
-    ? window.location.pathname
-    : `${window.location.pathname}/`;
-  if (protectedRoutes.has(route)) {
-    window.sessionStorage.setItem(redirectStorageKey, route);
-  }
+  rememberProtectedRoute(window.location.pathname);
   window.location.replace("/login/");
   return null;
 }

@@ -1,65 +1,73 @@
 import { getSupabaseClient } from "../../services/supabase.js";
 
-let bookingPending = false;
-
 export class BookingOutcomeUnknownError extends Error {
   constructor() {
-    super("We could not verify whether your booking succeeded. Contact the hotel before trying again.");
+    super("The booking result could not be verified. Retry this same request or check My bookings before making another booking.");
     this.name = "BookingOutcomeUnknownError";
   }
 }
 
-export async function listAvailableRooms(hotelId, stay) {
-  const { data, error } = await getSupabaseClient().rpc("list_available_rooms", {
+export async function listRoomOffers(hotelId, stay) {
+  const { data, error } = await getSupabaseClient().rpc("list_room_offers", {
     requested_hotel_id: hotelId,
     requested_check_in: stay.checkIn,
     requested_check_out: stay.checkOut,
     requested_guest_count: stay.guests,
   });
-
-  if (error) {
+  if (error || !Array.isArray(data)) {
     throw new Error("Availability could not be checked. Please try again.");
   }
-  if (!Array.isArray(data)) {
-    throw new Error("Availability returned an unexpected response. Please try again.");
-  }
-  return data.map((room) => ({
-    id: room.room_id,
-    capacity: room.capacity,
-    nightlyRate: Number(room.nightly_rate),
+  return data.map((item) => ({
+    typeId: item.room_type_id,
+    typeName: item.room_type_name,
+    roomId: item.room_id,
+    capacity: item.capacity,
+    nightlyRate: item.nightly_rate === null ? null : Number(item.nightly_rate),
+    availableCount: Number(item.available_count),
   }));
 }
 
-export async function bookRoom(room, stay) {
-  const client = getSupabaseClient();
-  if (bookingPending) {
-    throw new Error("A booking is already being confirmed. Please wait.");
-  }
-  bookingPending = true;
+export async function confirmRoomBooking(draft) {
   let result;
   try {
-    result = await client.rpc("book_room", {
-      requested_room_id: room.id,
-      requested_check_in: stay.checkIn,
-      requested_check_out: stay.checkOut,
-      requested_guest_count: stay.guests,
-      expected_nightly_rate: room.nightlyRate,
+    result = await getSupabaseClient().rpc("confirm_room_booking", {
+      requested_room_id: draft.roomId,
+      requested_room_type_id: draft.typeId,
+      requested_check_in: draft.checkIn,
+      requested_check_out: draft.checkOut,
+      requested_guest_count: draft.guests,
+      expected_nightly_rate: draft.nightlyRate,
+      requested_request_id: draft.requestId,
     }).single();
   } catch {
     throw new BookingOutcomeUnknownError();
-  } finally {
-    bookingPending = false;
   }
-  const { data, error } = result;
+  if (result.error) {
+    if (result.error.code === "P0001") throw new Error(result.error.message);
+    throw new BookingOutcomeUnknownError();
+  }
+  if (!result.data?.id || !["confirmed", "cancelled"].includes(result.data.status)) {
+    throw new BookingOutcomeUnknownError();
+  }
+  return result.data;
+}
 
-  if (error) {
-    if (error.code === "P0001") {
-      throw new Error(`${error.message} Check availability again.`);
-    }
-    throw new BookingOutcomeUnknownError();
-  }
-  if (!data || data.status !== "confirmed" || !data.id) {
-    throw new BookingOutcomeUnknownError();
+export async function getMyReservations() {
+  const { data, error } = await getSupabaseClient().rpc("my_reservations");
+  if (error || !Array.isArray(data)) {
+    throw new Error("Your reservations could not be loaded. Please try again.");
   }
   return data;
+}
+
+export async function cancelReservation(id) {
+  const { data, error } = await getSupabaseClient()
+    .rpc("cancel_my_reservation", { requested_reservation_id: id }).single();
+  if (error) {
+    if (error.code === "P0001") throw new Error(error.message);
+    throw new Error("Cancellation could not be confirmed. Refresh your reservations before trying again.");
+  }
+  if (!data || data.status !== "cancelled") {
+    throw new Error("Cancellation could not be confirmed. Refresh your reservations before trying again.");
+  }
 }
