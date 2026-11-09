@@ -39,7 +39,7 @@
   background-color: #143b3c;
   background-image:
     linear-gradient(180deg, rgb(9 29 30 / 4%) 18%, rgb(9 29 30 / 83%) 100%),
-    url("/images/auth-lounge.png");
+    var(--site-auth-image, url("/images/auth-lounge.png"));
   background-position: center;
   background-size: cover;
   color: #fff;

@@ -1,3 +1,5 @@
+import { getSiteAssetUrl } from "../../utils/site-assets.js";
+
 export const sampleHotels = [
   {
     id: "azure-cove",
@@ -145,6 +147,7 @@ export const sampleHotels = [
 ];
 
 const unsplashImage = (id) =>
+  getSiteAssetUrl(`gallery/${id}.jpg`) ??
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=85`;
 
 export const sampleHotelGalleryByStyle = {

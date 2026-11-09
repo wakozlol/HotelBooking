@@ -16,6 +16,7 @@ Apply the committed migrations in timestamp order:
 6. `20261109091604_allow_self_profile_creation.sql`
 7. `20261109092746_booking_flow.sql`
 8. `20261109093003_retire_legacy_booking_rpc.sql`
+9. `20261109103602_create_site_assets_bucket.sql`
 
 The `set_hotel_admin_check_invoker` migration was renamed to match the verified remote version and SQL; it was not reapplied.
 The `list_available_rooms` migration is applied to the connected project; its
@@ -77,3 +78,12 @@ $grant_hotel_admin$;
 Sign out and back in, then open the admin dashboard. The hotel catalog tools will be available after the app verifies the role. Guests and anonymous visitors can only read published hotels. Only admins can create, edit, or delete hotel records and upload images.
 
 Uploaded images are limited to JPEG, PNG, and WebP files up to 5 MB in the public `hotel-images` bucket. Hotel card descriptions and rates may be illustrative; bookable prices come from room inventory, including explicitly labelled development samples if seeded.
+
+The public `site-assets` bucket holds the site's gallery and hero photographs,
+login background, and favicon. Its migration creates the bucket but does not
+copy the image files: deploy the assets separately in each Supabase project.
+The gallery and hero photographs originate from Unsplash; retain their source
+attribution and ensure permission to redistribute them. The frontend uses the
+configured Supabase URL for these assets, with existing local or external
+fallbacks when configuration is absent. Uploading site assets requires a
+trusted server-side credential; never expose it in the browser.
