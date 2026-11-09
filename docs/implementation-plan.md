@@ -74,6 +74,8 @@ Complete one milestone at a time. Do not begin a later milestone until it is in 
 - Confirm immediately only when the operation successfully assigns available inventory; show EUR pricing and payment-at-hotel terms.
 - Show the guest's own reservation history and enforce cancellation eligibility in the database.
 - **Acceptance:** successful bookings have one room and an immediate confirmation; concurrent attempts cannot book the same room; ineligible cancellations and unauthorized history access are rejected.
+- **Fast-track decision:** the owner requested connecting the hotel details Book button to real reservations and chose to leave physical-room inventory empty. The existing reservation table and atomic booking operation are reused; booking history, cancellation, and room administration remain out of scope for this slice.
+- **Status:** The Book button searches eligible physical rooms and confirms a selected room using the existing atomic operation. The availability migration is applied to the connected project. No physical rooms have been added, so bookings require real inventory first; the full milestone acceptance checks remain outstanding.
 
 ### 7. Admin management
 

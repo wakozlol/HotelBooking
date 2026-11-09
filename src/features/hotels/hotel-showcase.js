@@ -1,7 +1,7 @@
 import { Modal } from "bootstrap";
 import { getAuthenticatedUser } from "../../services/auth-service.js";
 import { isSupabaseConfigured } from "../../services/supabase.js";
-import { createStayPreview } from "../bookings/stay-preview.js";
+import { createStayBooking } from "../bookings/stay-booking.js";
 import { createHotelAdminActions, createHotelEditModal } from "./hotel-admin.js";
 import {
   getHotelAdminRole,
@@ -127,7 +127,7 @@ function createHotelCard(hotel, showDetails, adminActions) {
   return card;
 }
 
-function createHotelDetailsBody(hotel, stayPreview) {
+function createHotelDetailsBody(hotel, stayBooking) {
   const body = document.createElement("div");
   body.className = "row g-4 hotel-details";
 
@@ -259,7 +259,7 @@ function createHotelDetailsBody(hotel, stayPreview) {
   const availabilityNotice = document.createElement("p");
   availabilityNotice.className = "hotel-details__notice";
   availabilityNotice.textContent =
-    "This is an illustrative hotel preview. Live availability and reservations are not connected.";
+    "Hotel details and the illustrative rate above are examples. Check availability below for actual room prices.";
 
   detailsColumn.append(
     location,
@@ -270,7 +270,7 @@ function createHotelDetailsBody(hotel, stayPreview) {
     bookingHeading,
     bookingDetails,
     availabilityNotice,
-    stayPreview.element,
+    stayBooking.element,
   );
   body.append(galleryColumn, detailsColumn);
   return body;
@@ -309,7 +309,7 @@ function createHotelDetailsModal() {
   book.type = "button";
   book.textContent = "Book";
   book.setAttribute("aria-expanded", "false");
-  book.setAttribute("aria-controls", "hotel-stay-preview");
+  book.setAttribute("aria-controls", "hotel-stay-booking");
   footer.append(book);
   content.append(header, body, footer);
   dialog.append(content);
@@ -322,20 +322,20 @@ function createHotelDetailsModal() {
     focus: true,
   });
 
-  let stayPreview;
+  let stayBooking;
   book.addEventListener("click", () => {
-    stayPreview.show();
+    stayBooking.show();
     book.setAttribute("aria-expanded", "true");
   });
 
   return {
     element,
-    open(hotel) {
+    open(hotel, live) {
       title.textContent = hotel.name;
-      stayPreview = createStayPreview();
-      stayPreview.element.id = "hotel-stay-preview";
+      stayBooking = createStayBooking(hotel, { live });
+      stayBooking.element.id = "hotel-stay-booking";
       book.setAttribute("aria-expanded", "false");
-      body.replaceChildren(createHotelDetailsBody(hotel, stayPreview));
+      body.replaceChildren(createHotelDetailsBody(hotel, stayBooking));
       modal.show();
     },
   };
@@ -346,7 +346,7 @@ function createSampleNotice() {
   notice.className = "hotel-sample-notice";
   notice.setAttribute("role", "note");
   notice.textContent =
-    "Hotel descriptions, rates, and amenities are illustrative examples—not live property data or bookable availability.";
+    "Hotel descriptions, displayed rates, and amenities may be illustrative. Check each hotel for live room availability and pricing.";
   return notice;
 }
 
@@ -369,7 +369,7 @@ function createHotelGrid() {
     setRefresh(refresh) {
       refreshGrid = refresh;
     },
-    render(hotels, isAdmin, refresh) {
+    render(hotels, isAdmin, refresh, live = true) {
       grid.replaceChildren();
       refreshGrid = refresh;
       if (isAdmin) {
@@ -382,7 +382,7 @@ function createHotelGrid() {
         const actions = isAdmin
           ? createHotelAdminActions(hotel, { editModal, refresh })
           : null;
-        column.append(createHotelCard(hotel, detailsModal.open, actions));
+        column.append(createHotelCard(hotel, (selected) => detailsModal.open(selected, live), actions));
         grid.append(column);
       }
     },
@@ -419,7 +419,7 @@ async function loadHotelGrid(
       allowSampleFallback,
     );
   if (!isSupabaseConfigured()) {
-    grid.render(allowSampleFallback ? sampleHotels : [], false, refresh);
+    grid.render(allowSampleFallback ? sampleHotels : [], false, refresh, false);
     setHotelGridStatus(
       status,
       allowSampleFallback

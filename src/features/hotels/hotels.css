@@ -581,6 +581,10 @@
   font-size: 0.9rem;
 }
 
+.hotel-booking-results {
+  margin-top: 1rem;
+}
+
 @media (max-width: 575.98px) {
   .hotel-feature {
     min-height: 34rem;
