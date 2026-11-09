@@ -1,5 +1,8 @@
 import { renderPage } from "../../app/App.js";
-import { updateOwnProfile } from "../../services/profile-service.js";
+import {
+  createOwnProfile,
+  updateOwnProfile,
+} from "../../services/profile-service.js";
 import {
   createField,
   createStatusMessage,
@@ -33,6 +36,10 @@ export function renderAccountPage(user, profile) {
   const card = document.createElement("section");
   card.className = "account-form";
   card.setAttribute("aria-label", "Account details");
+  const profileNotice = document.createElement("p");
+  profileNotice.textContent =
+    "Complete your profile by providing your first and last names.";
+  profileNotice.hidden = Boolean(profile);
 
   const emailField = createField({
     id: "account-email",
@@ -55,13 +62,13 @@ export function renderAccountPage(user, profile) {
     label: "First name",
     autocomplete: "given-name",
   });
-  firstNameInput.value = profile.first_name;
+  firstNameInput.value = profile?.first_name ?? "";
   const { wrapper: lastNameWrapper, input: lastNameInput } = createField({
     id: "account-last-name",
     label: "Last name",
     autocomplete: "family-name",
   });
-  lastNameInput.value = profile.last_name;
+  lastNameInput.value = profile?.last_name ?? "";
   form.append(firstNameWrapper, lastNameWrapper);
 
   const accountDetails = document.createElement("p");
@@ -69,16 +76,18 @@ export function renderAccountPage(user, profile) {
   const createdLabel = document.createElement("strong");
   createdLabel.textContent = "Member since";
   const createdDate = document.createElement("span");
-  createdDate.textContent = formatCreatedDate(profile.created_at);
+  createdDate.textContent = profile
+    ? formatCreatedDate(profile.created_at)
+    : "Available after saving your profile";
   accountDetails.append(createdLabel, createdDate);
 
   const status = createStatusMessage();
   const saveButton = document.createElement("button");
   saveButton.className = "btn btn-primary w-100";
   saveButton.type = "submit";
-  saveButton.textContent = "Save changes";
+  saveButton.textContent = profile ? "Save changes" : "Create profile";
   form.append(status, accountDetails, saveButton);
-  card.append(form);
+  card.append(profileNotice, form);
   content.append(card);
 
   form.addEventListener("submit", async (event) => {
@@ -92,20 +101,28 @@ export function renderAccountPage(user, profile) {
       return;
     }
 
-    setSubmitPending(saveButton, true, "Save changes");
+    const creating = !profile;
+    setSubmitPending(saveButton, true, creating ? "Create profile" : "Save changes");
     try {
-      const updatedProfile = await updateOwnProfile(user.id, {
+      const saveProfile = creating ? createOwnProfile : updateOwnProfile;
+      const updatedProfile = await saveProfile(user.id, {
         firstName: firstNameInput.value,
         lastName: lastNameInput.value,
       });
+      profile = updatedProfile;
+      profileNotice.hidden = true;
       firstNameInput.value = updatedProfile.first_name;
       lastNameInput.value = updatedProfile.last_name;
       createdDate.textContent = formatCreatedDate(updatedProfile.created_at);
-      setStatusMessage(status, "Your profile has been updated.", "success");
+      setStatusMessage(
+        status,
+        creating ? "Your profile has been created." : "Your profile has been updated.",
+        "success",
+      );
     } catch (error) {
       setStatusMessage(status, error.message);
     } finally {
-      setSubmitPending(saveButton, false, "Save changes");
+      setSubmitPending(saveButton, false, profile ? "Save changes" : "Create profile");
     }
   });
 }

@@ -13,10 +13,12 @@ Apply the committed migrations in timestamp order:
 3. `20261108162005_set_hotel_admin_check_invoker.sql`
 4. `20261108183516_create_room_reservations.sql`
 5. `20261109091149_list_available_rooms.sql`
+6. `20261109091604_allow_self_profile_creation.sql`
 
 The `set_hotel_admin_check_invoker` migration was renamed to match the verified remote version and SQL; it was not reapplied.
 The `list_available_rooms` migration is applied to the connected project; its
 timestamp matches the remote migration history.
+The profile self-creation migration is also applied to the connected project.
 
 The room and reservation migration has been applied to the connected project. It
 creates empty `rooms` and `reservations` tables, restricts guest reservations

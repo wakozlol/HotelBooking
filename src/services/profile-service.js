@@ -28,16 +28,10 @@ export async function getOwnProfile(userId) {
     );
   }
 
-  if (!result.data) {
-    throw new ProfileServiceError(
-      "Your profile is not available yet. Confirm that the profiles migration is installed, then try again.",
-    );
-  }
-
   return result.data;
 }
 
-export async function updateOwnProfile(userId, { firstName, lastName }) {
+function validateProfile({ firstName, lastName }) {
   const profile = {
     first_name: firstName.trim(),
     last_name: lastName.trim(),
@@ -54,6 +48,36 @@ export async function updateOwnProfile(userId, { firstName, lastName }) {
     );
   }
 
+  return profile;
+}
+
+export async function createOwnProfile(userId, names) {
+  const profile = validateProfile(names);
+  let result;
+
+  try {
+    result = await getSupabaseClient()
+      .from("profiles")
+      .insert({ id: userId, ...profile })
+      .select("first_name, last_name, created_at, updated_at")
+      .single();
+  } catch {
+    throw new ProfileServiceError(
+      "We could not create your profile. Check your connection and try again.",
+    );
+  }
+
+  if (result.error || !result.data) {
+    throw new ProfileServiceError(
+      "We could not create your profile. If it already exists, refresh the page and try again.",
+    );
+  }
+
+  return result.data;
+}
+
+export async function updateOwnProfile(userId, names) {
+  const profile = validateProfile(names);
   let result;
   try {
     result = await getSupabaseClient()
