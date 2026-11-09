@@ -95,6 +95,15 @@ test("disables unavailable room offers", async () => {
   ui.booking.show();
   await Promise.resolve();
   assert.equal(ui.all().find((element) => element.textContent === "Unavailable").disabled, true);
+  assert.match(ui.status.textContent, /No rooms are available/);
+});
+
+test("clearly labels sample inventory as a test, not a hotel stay", async () => {
+  const ui = setup([{ typeId: "type-1", typeName: "SAMPLE TEST ONLY - NO HOTEL STAY - Double", roomId: "room-1", capacity: 2, nightlyRate: 120, availableCount: 1 }]);
+  ui.booking.show();
+  await Promise.resolve();
+  assert.ok(ui.all().some((element) => element.textContent.includes("not a real hotel stay")));
+  assert.ok(ui.all().some((element) => element.textContent.includes("Do not travel or pay")));
 });
 
 test("does not search invalid dates or guest counts", async () => {

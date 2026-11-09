@@ -30,9 +30,20 @@ confirmed stays. The legacy `book_room` RPC is no longer available to browser
 clients. Guests can view only their own reservation details and cancel confirmed
 stays until 24 hours before the check-in date begins in UTC.
 
-The owner chose to leave room inventory empty. To enable bookings, an authorized
-administrator must add real room types to `public.room_types` and physical rooms
-to `public.rooms` in Supabase. Each room needs an existing `hotel_id`, matching
+The owner requested labelled development-only sample inventory. The optional
+[`sample-room-inventory.sql`](../supabase/seeds/sample-room-inventory.sql) seed
+is deliberately separate from migrations: run it only in a development project,
+never automatically on production. It refuses to run if either inventory table
+already contains records. Sample offers and their confirmed database records
+are tests, not real stays; do not travel or pay for them.
+The seed was run in the connected project at the owner's request: it created
+two sample types and three sample rooms per existing hotel. It does not create
+real inventory and its records are publicly offered by the availability RPC.
+Deploy the updated frontend with its test-only warnings before inviting testers.
+
+For real bookings, an authorized administrator must add real room types to
+`public.room_types` and physical rooms to `public.rooms` in Supabase. Each room
+needs an existing `hotel_id`, matching
 `room_type_id`, a unique room number within the hotel, capacity, nightly EUR
 rate, and `is_active` set to true. Older rooms without a type are preserved but
 will not appear in the new booking flow until assigned a type. Only published
@@ -65,4 +76,4 @@ $grant_hotel_admin$;
 
 Sign out and back in, then open the admin dashboard. The hotel catalog tools will be available after the app verifies the role. Guests and anonymous visitors can only read published hotels. Only admins can create, edit, or delete hotel records and upload images.
 
-Uploaded images are limited to JPEG, PNG, and WebP files up to 5 MB in the public `hotel-images` bucket. Hotel card descriptions and rates may be illustrative; bookable prices come only from real room inventory.
+Uploaded images are limited to JPEG, PNG, and WebP files up to 5 MB in the public `hotel-images` bucket. Hotel card descriptions and rates may be illustrative; bookable prices come from room inventory, including explicitly labelled development samples if seeded.

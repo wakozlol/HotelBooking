@@ -5,6 +5,7 @@ import { getHotelListings } from "../features/hotels/hotel-service.js";
 import { readBookingDraft, clearBookingDraft } from "../features/bookings/booking-draft.js";
 import { confirmRoomBooking, getMyReservations, listRoomOffers } from "../features/bookings/booking-service.js";
 import { detailsList, money, nightsBetween } from "../features/bookings/reservation-ui.js";
+import { isSampleRoomType, sampleBookingNotice } from "../features/bookings/sample-inventory.js";
 
 renderPage({ title: "Review your booking", description: "Checking your sign-in and booking details..." });
 
@@ -27,13 +28,19 @@ async function initialize() {
     ]);
     const hotel = hotels.find((item) => item.id === draft.hotelId);
     const offer = offers.find((item) => item.typeId === draft.typeId);
-    if (!hotel || !offer) {
+    if (!hotel) {
+      throw new Error("This hotel is no longer available. Please choose another hotel.");
+    }
+    if (!offer) {
       throw new Error("Sorry, this room is no longer available. Please select another room.");
     }
 
+    const sample = isSampleRoomType(offer.typeName);
     renderPage({
       title: "Review your booking",
-      description: "Availability and price for your selected room are checked when you confirm. Payment is made at the hotel.",
+      description: sample
+        ? sampleBookingNotice
+        : "Availability and price for your selected room are checked when you confirm. Payment is made at the hotel.",
       links: [{ label: "Choose another room", href: "/hotels/" }],
     });
     const main = document.querySelector("#main-content");
@@ -46,7 +53,7 @@ async function initialize() {
       ["Nights", nightsBetween(draft.checkIn, draft.checkOut)],
       ["Price per night", money.format(draft.nightlyRate)],
       ["Total", money.format(draft.nightlyRate * nightsBetween(draft.checkIn, draft.checkOut))],
-      ["Payment", "Pay at the hotel"],
+      ["Payment", sample ? "Test only - no payment" : "Pay at the hotel"],
     ]));
     const status = document.createElement("p");
     status.className = "mt-3";

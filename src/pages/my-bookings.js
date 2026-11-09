@@ -3,6 +3,7 @@ import { renderPage } from "../app/App.js";
 import { requireAuthenticatedUser } from "../utils/auth-guard.js";
 import { cancelReservation, getMyReservations } from "../features/bookings/booking-service.js";
 import { reservationDetails } from "../features/bookings/reservation-ui.js";
+import { isSampleRoomType, sampleBookingNotice } from "../features/bookings/sample-inventory.js";
 
 async function initialize() {
   renderPage({ title: "My bookings", description: "Loading your reservations..." });
@@ -33,10 +34,18 @@ async function initialize() {
       card.setAttribute("aria-label", `Reservation ${reservation.id}`);
       const heading = document.createElement("h2");
       heading.className = "h4";
+      const sample = isSampleRoomType(reservation.room_type_name);
       heading.textContent = selected && reservation.status === "confirmed"
-        ? "Booking confirmed"
+        ? (sample ? "Test reservation recorded" : "Booking confirmed")
         : reservation.hotel_name;
-      card.append(heading, reservationDetails(reservation));
+      card.append(heading);
+      if (sample) {
+        const warning = document.createElement("p");
+        warning.className = "text-danger fw-semibold";
+        warning.textContent = sampleBookingNotice;
+        card.append(warning);
+      }
+      card.append(reservationDetails(reservation));
       const status = document.createElement("p");
       status.className = "mt-3";
       status.setAttribute("role", "status");

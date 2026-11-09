@@ -7,15 +7,43 @@ export class BookingOutcomeUnknownError extends Error {
   }
 }
 
+function reportAvailabilityFailure(operation, error, status) {
+  console.error(`Booking: ${operation} failed`, {
+    code: error?.code || "unknown",
+    status,
+  });
+  if (error?.code === "42501" || status === 401 || status === 403) {
+    return new Error("Availability access was denied. Please contact the hotel.");
+  }
+  if (error?.code === "P0001") {
+    return new Error("Choose valid dates and a guest count from 1 to 100.");
+  }
+  return new Error("Availability could not be checked. Check your connection and try again.");
+}
+
 export async function listRoomOffers(hotelId, stay) {
-  const { data, error } = await getSupabaseClient().rpc("list_room_offers", {
+  const client = getSupabaseClient();
+  const { data, error, status } = await client.rpc("list_room_offers", {
     requested_hotel_id: hotelId,
     requested_check_in: stay.checkIn,
     requested_check_out: stay.checkOut,
     requested_guest_count: stay.guests,
   });
-  if (error || !Array.isArray(data)) {
-    throw new Error("Availability could not be checked. Please try again.");
+  if (error) {
+    throw reportAvailabilityFailure("availability request", error, status);
+  }
+  if (!Array.isArray(data)) {
+    throw reportAvailabilityFailure("availability response", null, status);
+  }
+  if (!data.length) {
+    const hotel = await client.from("hotels").select("id")
+      .eq("id", hotelId).eq("is_published", true).maybeSingle();
+    if (hotel.error) {
+      throw reportAvailabilityFailure("hotel lookup", hotel.error, hotel.status);
+    }
+    if (!hotel.data) {
+      throw new Error("This hotel is no longer available. Please choose another hotel.");
+    }
   }
   return data.map((item) => ({
     typeId: item.room_type_id,
@@ -39,14 +67,23 @@ export async function confirmRoomBooking(draft) {
       expected_nightly_rate: draft.nightlyRate,
       requested_request_id: draft.requestId,
     }).single();
-  } catch {
+  } catch (error) {
+    console.error("Booking: confirmation request failed before a result was received", error?.name);
     throw new BookingOutcomeUnknownError();
   }
   if (result.error) {
+    console.error("Booking: confirmation failed", {
+      code: result.error.code || "unknown",
+      status: result.status,
+    });
     if (result.error.code === "P0001") throw new Error(result.error.message);
+    if (result.error.code === "42501" || result.status === 401 || result.status === 403) {
+      throw new Error("Booking access was denied. Please sign in again or contact the hotel.");
+    }
     throw new BookingOutcomeUnknownError();
   }
   if (!result.data?.id || !["confirmed", "cancelled"].includes(result.data.status)) {
+    console.error("Booking: confirmation returned an unexpected response");
     throw new BookingOutcomeUnknownError();
   }
   return result.data;

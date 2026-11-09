@@ -1,6 +1,7 @@
 import { getSupabaseConfigurationError } from "../../services/supabase.js";
 import { saveBookingDraft } from "./booking-draft.js";
 import { listRoomOffers } from "./booking-service.js";
+import { isSampleRoomType, sampleBookingNotice } from "./sample-inventory.js";
 
 const money = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" });
 
@@ -45,7 +46,7 @@ export function createStayBooking(hotel, {
   const notice = document.createElement("p");
   notice.className = "hotel-details__notice";
   notice.textContent = live
-    ? "Choose your dates and guests to check live availability. Pay at the hotel."
+    ? "Choose your dates and guests to check availability. Review the payment terms before confirming."
     : `${configurationError() ?? "Live hotel listings are unavailable."} Sample stays cannot be booked.`;
   const form = document.createElement("form");
   const fields = document.createElement("fieldset");
@@ -99,7 +100,9 @@ export function createStayBooking(hotel, {
         return;
       }
       const nights = (Date.parse(`${stay.checkOut}T00:00:00Z`) - Date.parse(`${stay.checkIn}T00:00:00Z`)) / 86400000;
-      status.textContent = "Choose an available room. Availability is rechecked on confirmation.";
+      status.textContent = offers.some((offer) => offer.availableCount > 0 && offer.roomId)
+        ? "Choose an available room. Availability is rechecked on confirmation."
+        : "No rooms are available for these dates and guests. Try different dates or guest numbers.";
       offers.forEach((offer) => {
         const card = document.createElement("div");
         card.className = "border rounded p-3 mb-2 bg-white";
@@ -121,11 +124,19 @@ export function createStayBooking(hotel, {
               hotelId: hotel.id, typeId: offer.typeId, roomId: offer.roomId,
               nightlyRate: offer.nightlyRate, ...stay, requestId: crypto.randomUUID(),
             });
-          } catch {
+          } catch (error) {
+            console.error("Booking: unable to save the room selection", error?.name);
             status.textContent = "Your booking selection could not be saved. Check your browser settings and try again.";
           }
         });
-        card.append(name, details, button);
+        card.append(name);
+        if (isSampleRoomType(offer.typeName)) {
+          const warning = document.createElement("p");
+          warning.className = "text-danger fw-semibold mb-2";
+          warning.textContent = sampleBookingNotice;
+          card.append(warning);
+        }
+        card.append(details, button);
         results.append(card);
       });
     } catch (error) {

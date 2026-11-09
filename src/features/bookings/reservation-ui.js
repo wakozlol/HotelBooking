@@ -1,3 +1,5 @@
+import { isSampleRoomType } from "./sample-inventory.js";
+
 const money = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" });
 
 export function nightsBetween(start, end) {
@@ -32,7 +34,7 @@ export function reservationDetails(reservation) {
     ["Price per night", money.format(Number(reservation.nightly_rate))],
     ["Total", money.format(Number(reservation.total_eur))],
     ["Status", reservation.status],
-    ["Payment", "Pay at the hotel"],
+    ["Payment", isSampleRoomType(reservation.room_type_name) ? "Test only - no payment" : "Pay at the hotel"],
   ]);
 }
 
